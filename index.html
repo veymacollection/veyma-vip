@@ -1,72 +1,223 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Veyma VIP</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veyma VIP Card</title>
+
+<style>
+@font-face{
+font-family:iransans;
+src:local("Arial");
+}
+
+*{
+box-sizing:border-box;
+font-family:iransans,Arial;
+}
+
+body{
+margin:0;
+background:#050505;
+color:#fff;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+width:92%;
+max-width:430px;
+}
+
+.card{
+background:linear-gradient(145deg,#161616,#050505);
+border:1px solid #c9a227;
+border-radius:30px;
+padding:25px;
+box-shadow:0 0 35px #000;
+text-align:center;
+}
+
+.logo{
+width:130px;
+height:130px;
+border-radius:50%;
+object-fit:contain;
+margin-bottom:15px;
+}
+
+.title{
+font-size:25px;
+color:#d8b44a;
+font-weight:bold;
+}
+
+.subtitle{
+color:#ddd;
+margin:10px 0 25px;
+}
+
+.box{
+background:#111;
+border:1px solid #8e6d18;
+border-radius:20px;
+padding:20px;
+margin:15px 0;
+text-align:right;
+}
+
+.label{
+color:#aaa;
+font-size:15px;
+}
+
+.value{
+font-size:24px;
+font-weight:bold;
+margin-top:10px;
+color:#fff;
+}
+
+
+.reward{
+background:#00a94f;
+border:none;
+width:100%;
+padding:18px;
+border-radius:18px;
+font-size:22px;
+font-weight:bold;
+color:white;
+margin-top:10px;
+cursor:pointer;
+box-shadow:0 5px 20px #003d1c;
+}
+
+
+.contact{
+display:block;
+background:linear-gradient(90deg,#c9a227,#806000);
+color:#000;
+text-decoration:none;
+padding:16px;
+border-radius:18px;
+font-weight:bold;
+font-size:18px;
+margin-top:20px;
+}
+
+
+.footer{
+margin-top:20px;
+color:#999;
+font-size:13px;
+}
+</style>
+
 </head>
+
 <body>
-  <main class="container">
-    <section class="card hero">
-      <div class="logo">VEYMA</div>
-      <h1>باشگاه مشتریان ویما</h1>
-      <p>Veyma VIP Collection</p>
-    </section>
 
-    <section id="customer-view" class="card">
-      <h2>اطلاعات مشتری</h2>
-      <div class="info-grid">
-        <div><span>نام</span><strong id="customer-name">در حال دریافت...</strong></div>
-        <div><span>تعداد خرید</span><strong id="purchase-count">—</strong></div>
-        <div><span>مجموع خرید</span><strong id="purchase-total">—</strong></div>
-        <div><span>پاداش فعلی</span><strong id="reward">—</strong></div>
-      </div>
-      <p class="note">این صفحه فقط برای مشاهده اطلاعات مشتری است.</p>
-    </section>
+<div class="container">
 
-    <section id="admin-login" class="card hidden">
-      <h2>ورود مدیر</h2>
-      <p>برای دسترسی به پنل مدیریت، با حساب مدیر وارد شوید.</p>
-      <button id="google-login">ورود با Google</button>
-    </section>
+<div class="card">
 
-    <section id="admin-view" class="card hidden">
-      <div class="section-head">
-        <h2>پنل مدیریت</h2>
-        <button id="logout" class="secondary">خروج</button>
-      </div>
+<img src="logo.png" class="logo">
 
-      <div class="info-grid">
-        <div><span>نام مشتری</span><strong id="admin-name">—</strong></div>
-        <div><span>شماره تماس</span><strong id="admin-phone">—</strong></div>
-        <div><span>تعداد خرید</span><strong id="admin-count">—</strong></div>
-        <div><span>مجموع خرید</span><strong id="admin-total">—</strong></div>
-        <div><span>پاداش فعلی</span><strong id="admin-reward">—</strong></div>
-      </div>
+<div class="title">
+کارت هدیه مشتریان VIP
+</div>
 
-      <div class="form">
-        <label for="purchase-amount">مبلغ خرید جدید (تومان)</label>
-        <input id="purchase-amount" type="number" min="0" placeholder="مثلاً 50000000">
-        <button id="confirm-purchase">تأیید خرید</button>
-      </div>
+<div class="subtitle">
+Veyma Collection
+</div>
 
-      <div class="settings">
-        <h3>تنظیمات VIP</h3>
-        <label for="threshold">حدنصاب پاداش (تومان)</label>
-        <input id="threshold" type="number" value="50000000" min="1">
-        <label for="reward-amount">مبلغ پاداش (تومان)</label>
-        <input id="reward-amount" type="number" value="300000" min="0">
-        <button id="save-settings" class="secondary">ذخیره تنظیمات</button>
-      </div>
 
-      <div>
-        <h3>سابقه خرید</h3>
-        <div id="history" class="history">هنوز سابقه‌ای ثبت نشده است.</div>
-      </div>
-    </section>
-  </main>
+<div class="box">
 
-  <script type="module" src="script.js"></script>
+<div class="label">
+مجموع خرید
+</div>
+
+<div class="value">
+۵۲,۵۰۰,۰۰۰ تومان
+</div>
+
+</div>
+
+
+
+<div class="box">
+
+<div class="label">
+تعداد خرید
+</div>
+
+<div class="value">
+۲ بار
+</div>
+
+</div>
+
+
+
+<div class="box">
+
+<div class="label">
+پاداش فعلی شما
+</div>
+
+<div class="value">
+۳۰۰,۰۰۰ تومان هدیه
+</div>
+
+<button class="reward">
+مشاهده پاداش VIP
+</button>
+
+</div>
+
+
+
+<a class="contact" 
+href="https://veymacollection.github.io/veyma-collection/"
+target="_blank">
+راه‌های ارتباطی
+</a>
+
+
+<div class="footer">
+کارت اختصاصی مشتریان ویژه ویما
+</div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+if(navigator.share){
+
+document.querySelector(".contact").addEventListener("click",function(e){
+
+e.preventDefault();
+
+navigator.share({
+title:"Veyma Collection",
+text:"راه‌های ارتباطی ویما",
+url:"https://veymacollection.github.io/veyma-collection/"
+});
+
+});
+
+}
+
+</script>
+
+
 </body>
 </html>
