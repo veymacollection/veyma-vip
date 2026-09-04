@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veyma VIP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card hero">
+      <div class="logo">VEYMA</div>
+      <h1>باشگاه مشتریان ویما</h1>
+      <p>Veyma VIP Collection</p>
+    </section>
+
+    <section id="customer-view" class="card">
+      <h2>اطلاعات مشتری</h2>
+      <div class="info-grid">
+        <div><span>نام</span><strong id="customer-name">در حال دریافت...</strong></div>
+        <div><span>تعداد خرید</span><strong id="purchase-count">—</strong></div>
+        <div><span>مجموع خرید</span><strong id="purchase-total">—</strong></div>
+        <div><span>پاداش فعلی</span><strong id="reward">—</strong></div>
+      </div>
+      <p class="note">این صفحه فقط برای مشاهده اطلاعات مشتری است.</p>
+    </section>
+
+    <section id="admin-login" class="card hidden">
+      <h2>ورود مدیر</h2>
+      <p>برای دسترسی به پنل مدیریت، با حساب مدیر وارد شوید.</p>
+      <button id="google-login">ورود با Google</button>
+    </section>
+
+    <section id="admin-view" class="card hidden">
+      <div class="section-head">
+        <h2>پنل مدیریت</h2>
+        <button id="logout" class="secondary">خروج</button>
+      </div>
+
+      <div class="info-grid">
+        <div><span>نام مشتری</span><strong id="admin-name">—</strong></div>
+        <div><span>شماره تماس</span><strong id="admin-phone">—</strong></div>
+        <div><span>تعداد خرید</span><strong id="admin-count">—</strong></div>
+        <div><span>مجموع خرید</span><strong id="admin-total">—</strong></div>
+        <div><span>پاداش فعلی</span><strong id="admin-reward">—</strong></div>
+      </div>
+
+      <div class="form">
+        <label for="purchase-amount">مبلغ خرید جدید (تومان)</label>
+        <input id="purchase-amount" type="number" min="0" placeholder="مثلاً 50000000">
+        <button id="confirm-purchase">تأیید خرید</button>
+      </div>
+
+      <div class="settings">
+        <h3>تنظیمات VIP</h3>
+        <label for="threshold">حدنصاب پاداش (تومان)</label>
+        <input id="threshold" type="number" value="50000000" min="1">
+        <label for="reward-amount">مبلغ پاداش (تومان)</label>
+        <input id="reward-amount" type="number" value="300000" min="0">
+        <button id="save-settings" class="secondary">ذخیره تنظیمات</button>
+      </div>
+
+      <div>
+        <h3>سابقه خرید</h3>
+        <div id="history" class="history">هنوز سابقه‌ای ثبت نشده است.</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
