@@ -379,7 +379,6 @@
       }
 
     }
-
   </style>
 </head>
 
@@ -468,6 +467,45 @@
     </section>
 
   </main>
+
+
+  <!-- Firebase -->
+  <script type="module">
+
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+    import {
+      getFirestore
+    }
+      from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrNNy3JlP68yoaSANC3usPCDX33JKVBEM",
+      authDomain: "veyma-vip.firebaseapp.com",
+      projectId: "veyma-vip",
+      storageBucket: "veyma-vip.firebasestorage.app",
+      messagingSenderId: "553432630474",
+      appId: "1:553432630474:web:abab79661d54435dcce033"
+    };
+
+
+    // اتصال به پروژه Veyma VIP
+    const app = initializeApp(firebaseConfig);
+
+    // اتصال به Firestore
+    const db = getFirestore(app);
+
+
+    // --------------------------------------------------
+    // فعلاً فقط اتصال Firebase را تست می‌کنیم.
+    // اطلاعات مشتری در مرحله بعد از Firestore خوانده می‌شود.
+    // --------------------------------------------------
+
+    console.log("Veyma VIP Firebase connected successfully.");
+
+  </script>
 
 </body>
 </html>
