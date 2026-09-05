@@ -57,14 +57,28 @@
     }
     .sidebar-mobile.open { transform: translateX(0); }
 
+    /* کارت‌های آماری بهبود یافته */
     .stat-card {
-      background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
-      border: 1px solid rgba(212, 175, 55, 0.15);
-      transition: all 0.25s ease;
+      background: linear-gradient(160deg, #121a2b 0%, #0d1424 100%);
+      border: 1px solid rgba(212, 175, 55, 0.12);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), transparent 70%);
+      pointer-events: none;
     }
     .stat-card:hover {
-      border-color: rgba(212, 175, 55, 0.4);
-      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
     }
 
     .btn-gold {
@@ -75,14 +89,16 @@
     }
     .btn-gold:hover {
       background: linear-gradient(135deg, #f0d78c 0%, #d4af37 100%);
+      transform: translateY(-1px);
     }
     .btn-outline {
-      border: 1.5px solid rgba(212, 175, 55, 0.5);
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
       color: #d4af37;
       transition: all 0.2s;
     }
     .btn-outline:hover {
       background: rgba(212, 175, 55, 0.1);
+      border-color: rgba(212, 175, 55, 0.7);
     }
 
     .nav-item { transition: all 0.2s; }
@@ -127,6 +143,12 @@
       opacity: 0.75;
       pointer-events: none;
     }
+
+    /* بهبود خوانایی اعداد */
+    .stat-value {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
   </style>
 </head>
 <body class="min-h-screen font-vazir antialiased">
@@ -134,32 +156,32 @@
   <!-- لودینگ اولیه -->
   <div id="initial-loading" class="loading-overlay">
     <div class="spinner"></div>
-    <p class="text-veyma-gold text-sm">در حال بررسی دسترسی...</p>
+    <p class="text-veyma-gold text-sm tracking-wide">در حال بررسی دسترسی...</p>
   </div>
 
   <!-- ==================== صفحه لاگین ==================== -->
   <div id="login-page" class="fixed inset-0 z-50 bg-veyma-dark flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-md bg-veyma-navy border border-veyma-gold/20 rounded-3xl p-8 shadow-2xl">
       <div class="text-center mb-8">
-        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center mb-4">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center mb-4 shadow-lg shadow-veyma-gold/20">
           <span class="text-veyma-dark font-bold text-2xl">V</span>
         </div>
-        <h1 class="text-2xl font-bold text-veyma-gold">Veyma Collection</h1>
-        <p class="text-veyma-muted text-sm mt-1">ورود به پنل مدیریت فروشگاه</p>
+        <h1 class="text-2xl font-bold text-veyma-gold tracking-tight">Veyma Collection</h1>
+        <p class="text-veyma-muted text-sm mt-2">ورود به پنل مدیریت فروشگاه</p>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <label class="text-sm text-veyma-muted mb-1 block">ایمیل</label>
+          <label class="text-sm text-veyma-muted mb-1.5 block">ایمیل</label>
           <input id="login-email" type="email" placeholder="email@example.com"
-                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3 text-veyma-cream focus:outline-none focus:border-veyma-gold" />
+                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3.5 text-veyma-cream placeholder:text-veyma-muted/60 focus:outline-none focus:border-veyma-gold transition-colors" />
         </div>
         <div>
-          <label class="text-sm text-veyma-muted mb-1 block">رمز عبور</label>
+          <label class="text-sm text-veyma-muted mb-1.5 block">رمز عبور</label>
           <input id="login-password" type="password" placeholder="••••••••"
-                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3 text-veyma-cream focus:outline-none focus:border-veyma-gold" />
+                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3.5 text-veyma-cream placeholder:text-veyma-muted/60 focus:outline-none focus:border-veyma-gold transition-colors" />
         </div>
-        <button id="login-btn" onclick="login()" class="btn-gold w-full py-3.5 rounded-xl text-base mt-2 flex items-center justify-center gap-2">
+        <button id="login-btn" onclick="login()" class="btn-gold w-full py-3.5 rounded-xl text-base mt-1 flex items-center justify-center gap-2">
           <span id="login-btn-text">ورود به پنل</span>
           <div id="login-spinner" class="spinner hidden" style="width:18px;height:18px;border-width:2px;"></div>
         </button>
@@ -176,15 +198,15 @@
     
     <div class="flex items-center justify-between p-5 border-b border-veyma-gold/15">
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center shadow-md shadow-veyma-gold/20">
           <span class="text-veyma-dark font-bold text-lg">V</span>
         </div>
         <div>
           <h1 class="text-veyma-gold font-bold text-lg leading-tight">Veyma</h1>
-          <p class="text-xs text-veyma-muted">Collection</p>
+          <p class="text-xs text-veyma-muted tracking-wide">Collection</p>
         </div>
       </div>
-      <button onclick="closeSidebar()" class="lg:hidden w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-veyma-gold">
+      <button onclick="closeSidebar()" class="lg:hidden w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition-colors">
         ✕
       </button>
     </div>
@@ -235,10 +257,10 @@
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-veyma-gold/20 flex items-center justify-center text-veyma-gold font-bold text-sm" id="user-avatar">م</div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate" id="user-name">—</p>
+          <p class="text-sm font-medium truncate text-veyma-cream" id="user-name">—</p>
           <p class="text-xs text-veyma-muted" id="user-role-label">—</p>
         </div>
-        <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5">خروج</button>
+        <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-colors">خروج</button>
       </div>
     </div>
   </aside>
@@ -246,98 +268,129 @@
   <!-- ==================== محتوای اصلی ==================== -->
   <div id="app" class="lg:mr-72 min-h-screen flex flex-col hidden">
 
-    <header class="sticky top-0 z-30 bg-veyma-dark/90 backdrop-blur-md border-b border-veyma-gold/10 px-4 py-3">
+    <header class="sticky top-0 z-30 bg-veyma-dark/90 backdrop-blur-md border-b border-veyma-gold/10 px-4 py-3.5">
       <div class="flex items-center justify-between gap-3">
-        <button onclick="openSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold">
+        <button onclick="openSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition-colors">
           ☰
         </button>
         <div class="flex-1">
-          <h2 class="text-lg font-bold text-veyma-cream" id="page-title">داشبورد</h2>
-          <p class="text-xs text-veyma-muted" id="current-date">—</p>
+          <h2 class="text-lg font-bold text-veyma-cream tracking-tight" id="page-title">داشبورد</h2>
+          <p class="text-xs text-veyma-muted mt-0.5" id="current-date">—</p>
         </div>
       </div>
     </header>
 
-    <main class="flex-1 p-4 md:p-6 space-y-6 fade-in" id="main-content">
+    <main class="flex-1 p-4 md:p-6 space-y-8 fade-in" id="main-content">
 
       <!-- فعالیت سریع -->
       <section>
-        <h3 class="text-sm font-medium text-veyma-muted mb-3">فعالیت سریع</h3>
+        <h3 class="text-sm font-medium text-veyma-muted mb-3.5 tracking-wide">فعالیت سریع</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <button onclick="goTo('sale')" data-roles="admin,partner,seller" class="btn-gold flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            ➕ فروش جدید
+            <span class="text-lg">＋</span>
+            <span>فروش جدید</span>
           </button>
           <button onclick="goTo('stock-in')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            📦 ورود کالا
+            <span class="text-lg">📦</span>
+            <span>ورود کالا</span>
           </button>
           <button onclick="goTo('customer-new')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            👤 مشتری جدید
+            <span class="text-lg">👤</span>
+            <span>مشتری جدید</span>
           </button>
           <button onclick="goTo('supplier-new')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            🏭 تأمین‌کننده
+            <span class="text-lg">🏭</span>
+            <span>تأمین‌کننده</span>
           </button>
           <button onclick="goTo('scan')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm col-span-2 sm:col-span-1">
-            📷 اسکن فاکتور
+            <span class="text-lg">📷</span>
+            <span>اسکن فاکتور</span>
           </button>
         </div>
       </section>
 
       <!-- فروش -->
       <section>
-        <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span> فروش
-        </h3>
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">فروش امروز</p>
-            <p class="text-xl font-bold text-veyma-gold" id="stat-today-sales">—</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
+        <div class="flex items-center gap-2.5 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
+          <h3 class="text-sm font-medium text-veyma-muted tracking-wide">فروش</h3>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
+
+          <!-- فروش امروز -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">فروش امروز</p>
+            <p class="stat-value text-2xl font-bold text-veyma-gold leading-none" id="stat-today-sales">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">فروش این ماه</p>
-            <p class="text-xl font-bold text-veyma-cream" id="stat-month-sales">—</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
+
+          <!-- فروش این ماه -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">فروش این ماه</p>
+            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-month-sales">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">فاکتورهای امروز</p>
-            <p class="text-xl font-bold text-veyma-cream" id="stat-today-invoices">—</p>
+
+          <!-- فاکتورهای امروز -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">فاکتورهای امروز</p>
+            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-today-invoices">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">عدد</p>
           </div>
-          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
-            <p class="text-xs text-veyma-muted mb-1">سود امروز</p>
-            <p class="text-xl font-bold text-emerald-400" id="stat-today-profit">—</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
+
+          <!-- سود امروز -->
+          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
+            <p class="text-[13px] text-veyma-muted mb-2.5">سود امروز</p>
+            <p class="stat-value text-2xl font-bold text-emerald-400 leading-none" id="stat-today-profit">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
           </div>
-          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
-            <p class="text-xs text-veyma-muted mb-1">سود ماه</p>
-            <p class="text-xl font-bold text-emerald-400" id="stat-month-profit">—</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
+
+          <!-- سود ماه -->
+          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
+            <p class="text-[13px] text-veyma-muted mb-2.5">سود این ماه</p>
+            <p class="stat-value text-2xl font-bold text-emerald-400 leading-none" id="stat-month-profit">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
           </div>
+
         </div>
       </section>
 
       <!-- مشتری و انبار -->
       <section>
-        <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span> مشتری و انبار
-        </h3>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">تعداد مشتریان</p>
-            <p class="text-xl font-bold text-veyma-cream" id="stat-customers">—</p>
+        <div class="flex items-center gap-2.5 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
+          <h3 class="text-sm font-medium text-veyma-muted tracking-wide">مشتری و انبار</h3>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+
+          <!-- تعداد مشتریان -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">تعداد مشتریان</p>
+            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-customers">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">نفر</p>
           </div>
-          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
-            <p class="text-xs text-veyma-muted mb-1">طلب از مشتریان</p>
-            <p class="text-xl font-bold text-amber-400" id="stat-receivable">—</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
+
+          <!-- طلب از مشتریان -->
+          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
+            <p class="text-[13px] text-veyma-muted mb-2.5">طلب از مشتریان</p>
+            <p class="stat-value text-2xl font-bold text-amber-400 leading-none" id="stat-receivable">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">تعداد کالاها</p>
-            <p class="text-xl font-bold text-veyma-cream" id="stat-products">—</p>
+
+          <!-- تعداد کالاها -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">تعداد کالاها</p>
+            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-products">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">قلم</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">کم‌موجودی</p>
-            <p class="text-xl font-bold text-amber-400" id="stat-low-stock">—</p>
+
+          <!-- کم‌موجودی -->
+          <div class="stat-card rounded-2xl p-5">
+            <p class="text-[13px] text-veyma-muted mb-2.5">کم‌موجودی</p>
+            <p class="stat-value text-2xl font-bold text-amber-400 leading-none" id="stat-low-stock">۰</p>
+            <p class="text-[11px] text-veyma-muted/80 mt-2">قلم</p>
           </div>
+
         </div>
       </section>
 
@@ -406,7 +459,7 @@
           document.getElementById('login-page').classList.remove('hidden');
         }
       } else {
-        closeSidebar(); // بستن سایدبار هنگام خروج
+        closeSidebar();
         document.getElementById('login-page').classList.remove('hidden');
         document.getElementById('app').classList.add('hidden');
         currentUser = null;
@@ -474,7 +527,7 @@
     }
 
     function logout() {
-      closeSidebar(); // بستن سایدبار قبل از خروج
+      closeSidebar();
       auth.signOut();
     }
 
