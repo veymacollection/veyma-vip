@@ -97,12 +97,49 @@
     }
 
     .hidden-role { display: none !important; }
+
+    /* لودینگ */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0a0f1c;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(212, 175, 55, 0.2);
+      border-top-color: #d4af37;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .btn-loading {
+      opacity: 0.75;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="min-h-screen font-vazir antialiased">
 
+  <!-- لودینگ اولیه -->
+  <div id="initial-loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p class="text-veyma-gold text-sm">در حال بررسی دسترسی...</p>
+  </div>
+
   <!-- ==================== صفحه لاگین ==================== -->
-  <div id="login-page" class="fixed inset-0 z-50 bg-veyma-dark flex items-center justify-center p-4">
+  <div id="login-page" class="fixed inset-0 z-50 bg-veyma-dark flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-md bg-veyma-navy border border-veyma-gold/20 rounded-3xl p-8 shadow-2xl">
       <div class="text-center mb-8">
         <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center mb-4">
@@ -123,8 +160,9 @@
           <input id="login-password" type="password" placeholder="••••••••"
                  class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3 text-veyma-cream focus:outline-none focus:border-veyma-gold" />
         </div>
-        <button onclick="login()" class="btn-gold w-full py-3.5 rounded-xl text-base mt-2">
-          ورود به پنل
+        <button id="login-btn" onclick="login()" class="btn-gold w-full py-3.5 rounded-xl text-base mt-2 flex items-center justify-center gap-2">
+          <span id="login-btn-text">ورود به پنل</span>
+          <div id="login-spinner" class="spinner hidden" style="width:18px;height:18px;border-width:2px;"></div>
         </button>
         <p id="login-error" class="text-red-400 text-sm text-center hidden"></p>
       </div>
@@ -310,7 +348,7 @@
   <!-- ==================== اسکریپت ==================== -->
   <script>
     // ==============================================
-    // کانفیگ فایربیس واقعی
+    // کانفیگ فایربیس
     // ==============================================
     const firebaseConfig = {
       apiKey: "AIzaSyBrNNy3JlP68yoaSANC3usPCDX33JKVBEM",
@@ -330,6 +368,10 @@
 
     // ==================== مدیریت ورود و نقش ====================
     auth.onAuthStateChanged(async (user) => {
+      // مخفی کردن لودینگ اولیه
+      const initialLoading = document.getElementById('initial-loading');
+      if (initialLoading) initialLoading.style.display = 'none';
+
       if (user) {
         try {
           const userDoc = await db.collection('users').doc(user.uid).get();
@@ -337,26 +379,25 @@
           if (!userDoc.exists) {
             await auth.signOut();
             showLoginError('حساب شما هنوز توسط مدیر تأیید نشده است');
+            document.getElementById('login-page').classList.remove('hidden');
             return;
           }
 
           const data = userDoc.data();
 
-          // بررسی وضعیت (عزل شدن)
           if (data.status !== 'active') {
             await auth.signOut();
             showLoginError('دسترسی شما توسط مدیر غیرفعال شده است');
+            document.getElementById('login-page').classList.remove('hidden');
             return;
           }
 
           currentUser = { uid: user.uid, email: user.email, ...data };
           currentRole = data.role;
 
-          // نمایش برنامه
           document.getElementById('login-page').classList.add('hidden');
           document.getElementById('app').classList.remove('hidden');
 
-          // اطلاعات کاربر
           document.getElementById('user-name').textContent = data.name || 'کاربر';
           document.getElementById('user-role-label').textContent = roleToPersian(currentRole);
           document.getElementById('user-avatar').textContent = (data.name || 'ک').charAt(0);
@@ -368,12 +409,23 @@
           console.error(error);
           await auth.signOut();
           showLoginError('خطا در بررسی دسترسی');
+          document.getElementById('login-page').classList.remove('hidden');
         }
       } else {
         document.getElementById('login-page').classList.remove('hidden');
         document.getElementById('app').classList.add('hidden');
         currentUser = null;
         currentRole = null;
+
+        // برگرداندن دکمه ورود به حالت عادی
+        const btn = document.getElementById('login-btn');
+        const btnText = document.getElementById('login-btn-text');
+        const spinner = document.getElementById('login-spinner');
+        if (btn) {
+          btn.classList.remove('btn-loading');
+          btnText.textContent = 'ورود به پنل';
+          spinner.classList.add('hidden');
+        }
       }
     });
 
@@ -382,7 +434,6 @@
       return map[role] || role;
     }
 
-    // مخفی کردن بخش‌هایی که نقش فعلی اجازه ندارد
     function applyRolePermissions() {
       document.querySelectorAll('[data-roles]').forEach(el => {
         const allowedRoles = el.getAttribute('data-roles').split(',');
@@ -398,12 +449,27 @@
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const errorEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+      const btnText = document.getElementById('login-btn-text');
+      const spinner = document.getElementById('login-spinner');
+
+      if (!email || !password) {
+        showLoginError('ایمیل و رمز عبور را وارد کنید');
+        return;
+      }
+
+      btn.classList.add('btn-loading');
+      btnText.textContent = 'در حال ورود...';
+      spinner.classList.remove('hidden');
+      errorEl.classList.add('hidden');
 
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        errorEl.classList.add('hidden');
       } catch (err) {
         showLoginError('ایمیل یا رمز عبور اشتباه است');
+        btn.classList.remove('btn-loading');
+        btnText.textContent = 'ورود به پنل';
+        spinner.classList.add('hidden');
       }
     }
 
@@ -420,15 +486,12 @@
     // ==================== بارگذاری داشبورد ====================
     async function loadDashboard() {
       try {
-        // تعداد مشتریان
         const customersSnap = await db.collection('customers').where('status', '!=', 'deleted').get();
         document.getElementById('stat-customers').textContent = customersSnap.size.toLocaleString('fa-IR');
 
-        // تعداد محصولات
         const productsSnap = await db.collection('products').where('status', '!=', 'deleted').get();
         document.getElementById('stat-products').textContent = productsSnap.size.toLocaleString('fa-IR');
 
-        // بقیه آمارها فعلاً صفر (بعداً با کوئری واقعی پر می‌شوند)
         const zeroIds = [
           'stat-today-sales', 'stat-month-sales', 'stat-today-invoices',
           'stat-today-profit', 'stat-month-profit', 'stat-receivable', 'stat-low-stock'
@@ -440,7 +503,6 @@
 
       } catch (err) {
         console.error('خطا در بارگذاری داشبورد:', err);
-        showToast('خطا در دریافت اطلاعات');
       }
     }
 
@@ -513,7 +575,6 @@
         minute: '2-digit'
       });
 
-    // بستن منو با Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSidebar();
     });
