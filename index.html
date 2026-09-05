@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0a0f1c" />
+  <meta name="description" content="نرم‌افزار مدیریت فروشگاه Veyma Collection" />
   <title>Veyma Collection | مدیریت فروشگاه</title>
 
-  <!-- Vazirmatn -->
-  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+  <!-- فونت -->
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,47 +28,35 @@
           },
           fontFamily: {
             vazir: ['Vazirmatn', 'Tahoma', 'sans-serif']
-          },
-          boxShadow: {
-            gold: '0 4px 20px -4px rgba(212, 175, 55, 0.25)',
-            card: '0 8px 30px -8px rgba(0,0,0,0.35)'
           }
         }
       }
     }
   </script>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
   <style>
     * { font-family: 'Vazirmatn', Tahoma, sans-serif; }
     body { background: #0a0f1c; color: #f8f5ef; }
-
-    /* اسکرول‌بار ظریف */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
-    /* انیمیشن نرم */
-    .fade-in { animation: fadeIn 0.4s ease-out; }
+    .fade-in { animation: fadeIn 0.35s ease-out; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* سایدبار موبایل */
     .sidebar-mobile {
       transform: translateX(100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .sidebar-mobile.open {
-      transform: translateX(0);
-    }
+    .sidebar-mobile.open { transform: translateX(0); }
 
-    /* دسکتاپ: سایدبار ثابت */
-    @media (min-width: 1024px) {
-      .sidebar-desktop { transform: none !important; }
-    }
-
-    /* کارت‌های داشبورد */
     .stat-card {
       background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
       border: 1px solid rgba(212, 175, 55, 0.15);
@@ -75,56 +64,82 @@
     }
     .stat-card:hover {
       border-color: rgba(212, 175, 55, 0.4);
-      box-shadow: 0 8px 25px -8px rgba(212, 175, 55, 0.2);
       transform: translateY(-2px);
     }
 
-    /* دکمه طلایی */
     .btn-gold {
       background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
       color: #0a0f1c;
       font-weight: 600;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
     .btn-gold:hover {
       background: linear-gradient(135deg, #f0d78c 0%, #d4af37 100%);
-      box-shadow: 0 6px 20px -4px rgba(212, 175, 55, 0.45);
     }
-
-    /* دکمه ثانویه */
     .btn-outline {
       border: 1.5px solid rgba(212, 175, 55, 0.5);
       color: #d4af37;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
     .btn-outline:hover {
       background: rgba(212, 175, 55, 0.1);
-      border-color: #d4af37;
     }
 
-    /* منوی آیتم فعال */
+    .nav-item { transition: all 0.2s; }
     .nav-item.active {
       background: rgba(212, 175, 55, 0.12);
       color: #d4af37;
       border-right: 3px solid #d4af37;
     }
+    .nav-item:hover:not(.active) {
+      background: rgba(255,255,255,0.05);
+      color: #f8f5ef;
+    }
+
+    .hidden-role { display: none !important; }
   </style>
 </head>
 <body class="min-h-screen font-vazir antialiased">
 
+  <!-- ==================== صفحه لاگین ==================== -->
+  <div id="login-page" class="fixed inset-0 z-50 bg-veyma-dark flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-veyma-navy border border-veyma-gold/20 rounded-3xl p-8 shadow-2xl">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center mb-4">
+          <span class="text-veyma-dark font-bold text-2xl">V</span>
+        </div>
+        <h1 class="text-2xl font-bold text-veyma-gold">Veyma Collection</h1>
+        <p class="text-veyma-muted text-sm mt-1">ورود به پنل مدیریت فروشگاه</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-veyma-muted mb-1 block">ایمیل</label>
+          <input id="login-email" type="email" placeholder="email@example.com"
+                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3 text-veyma-cream focus:outline-none focus:border-veyma-gold" />
+        </div>
+        <div>
+          <label class="text-sm text-veyma-muted mb-1 block">رمز عبور</label>
+          <input id="login-password" type="password" placeholder="••••••••"
+                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3 text-veyma-cream focus:outline-none focus:border-veyma-gold" />
+        </div>
+        <button onclick="login()" class="btn-gold w-full py-3.5 rounded-xl text-base mt-2">
+          ورود به پنل
+        </button>
+        <p id="login-error" class="text-red-400 text-sm text-center hidden"></p>
+      </div>
+    </div>
+  </div>
+
   <!-- Overlay موبایل -->
   <div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
 
-  <!-- ========== سایدبار ========== -->
-  <aside id="sidebar"
-         class="fixed top-0 right-0 h-full w-72 bg-veyma-navy border-l border-veyma-gold/20 z-50
-                sidebar-mobile lg:translate-x-0 flex flex-col shadow-2xl">
-
-    <!-- هدر سایدبار -->
+  <!-- ==================== سایدبار ==================== -->
+  <aside id="sidebar" class="fixed top-0 right-0 h-full w-72 bg-veyma-navy border-l border-veyma-gold/20 z-50 sidebar-mobile lg:translate-x-0 flex flex-col shadow-2xl">
+    
     <div class="flex items-center justify-between p-5 border-b border-veyma-gold/15">
       <div class="flex items-center gap-3">
-        <!-- لوگو (جایگزین با logo.webp واقعی) -->
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center shadow-gold">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center">
           <span class="text-veyma-dark font-bold text-lg">V</span>
         </div>
         <div>
@@ -132,277 +147,361 @@
           <p class="text-xs text-veyma-muted">Collection</p>
         </div>
       </div>
-      <!-- دکمه بستن فقط موبایل -->
-      <button onclick="closeSidebar()" class="lg:hidden w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+      <button onclick="closeSidebar()" class="lg:hidden w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-veyma-gold">
+        ✕
       </button>
     </div>
 
-    <!-- منو -->
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-      <a href="#" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition">
-        <span class="text-lg">📊</span>
-        <span>داشبورد</span>
+      <a href="#" onclick="goTo('dashboard'); return false;" data-roles="admin,partner,seller" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-sm">
+        داشبورد
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">🧾</span>
-        <span>فروش و فاکتور</span>
+      <a href="#" onclick="goTo('sale'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        فروش و فاکتور
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">👥</span>
-        <span>مشتریان</span>
+      <a href="#" onclick="goTo('customers'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        مشتریان
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">📦</span>
-        <span>انبار</span>
+      <a href="#" onclick="goTo('inventory'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        انبار
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">🏭</span>
-        <span>تأمین‌کنندگان</span>
+      <a href="#" onclick="goTo('suppliers'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        تأمین‌کنندگان
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">🧾</span>
-        <span>چک‌ها</span>
+      <a href="#" onclick="goTo('checks'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        چک‌ها
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">💰</span>
-        <span>حساب‌ها</span>
+      <a href="#" onclick="goTo('accounts'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        حساب‌ها
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">📈</span>
-        <span>گزارش‌ها</span>
+      <a href="#" onclick="goTo('reports'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        گزارش‌ها
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">🤖</span>
-        <span>دستیار هوشمند</span>
+      <a href="#" onclick="goTo('ai'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        دستیار هوشمند
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">📋</span>
-        <span>فعالیت‌ها</span>
+      <a href="#" onclick="goTo('activities'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        فعالیت‌ها
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">🗑️</span>
-        <span>حذف‌شده‌ها</span>
+      <a href="#" onclick="goTo('deleted'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        حذف‌شده‌ها
       </a>
-      <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted hover:bg-white/5 hover:text-veyma-cream transition">
-        <span class="text-lg">⚙️</span>
-        <span>تنظیمات</span>
+      <a href="#" onclick="goTo('users'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        مدیریت کاربران
+      </a>
+      <a href="#" onclick="goTo('settings'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        تنظیمات
       </a>
     </nav>
 
-    <!-- فوتر سایدبار -->
     <div class="p-4 border-t border-veyma-gold/15">
-      <div class="flex items-center gap-3 px-2">
-        <div class="w-9 h-9 rounded-full bg-veyma-gold/20 flex items-center justify-center text-veyma-gold font-bold text-sm">م</div>
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-veyma-gold/20 flex items-center justify-center text-veyma-gold font-bold text-sm" id="user-avatar">م</div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">مدیر فروشگاه</p>
-          <p class="text-xs text-veyma-muted">ورود: امروز ۱۸:۴۲</p>
+          <p class="text-sm font-medium truncate" id="user-name">—</p>
+          <p class="text-xs text-veyma-muted" id="user-role-label">—</p>
         </div>
+        <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5">خروج</button>
       </div>
     </div>
   </aside>
 
-  <!-- ========== محتوای اصلی ========== -->
-  <div class="lg:mr-72 min-h-screen flex flex-col">
+  <!-- ==================== محتوای اصلی ==================== -->
+  <div id="app" class="lg:mr-72 min-h-screen flex flex-col hidden">
 
-    <!-- هدر بالا -->
     <header class="sticky top-0 z-30 bg-veyma-dark/90 backdrop-blur-md border-b border-veyma-gold/10 px-4 py-3">
       <div class="flex items-center justify-between gap-3">
-        <!-- دکمه منو موبایل -->
         <button onclick="openSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          ☰
         </button>
-
         <div class="flex-1">
-          <h2 class="text-lg font-bold text-veyma-cream">داشبورد</h2>
-          <p class="text-xs text-veyma-muted" id="current-date">شنبه ۱۴۰۵/۰۶/۱۴ — ۱۰:۴۶</p>
+          <h2 class="text-lg font-bold text-veyma-cream" id="page-title">داشبورد</h2>
+          <p class="text-xs text-veyma-muted" id="current-date">—</p>
         </div>
-
-        <!-- اعلان کمبود موجودی -->
-        <button class="relative w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          <span class="absolute -top-0.5 -left-0.5 w-4 h-4 bg-red-500 text-[10px] font-bold rounded-full flex items-center justify-center">۳</span>
-        </button>
       </div>
     </header>
 
-    <!-- بدنه داشبورد -->
-    <main class="flex-1 p-4 md:p-6 space-y-6 fade-in">
+    <main class="flex-1 p-4 md:p-6 space-y-6 fade-in" id="main-content">
 
-      <!-- ========== فعالیت سریع ========== -->
+      <!-- فعالیت سریع -->
       <section>
         <h3 class="text-sm font-medium text-veyma-muted mb-3">فعالیت سریع</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <button class="btn-gold flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm shadow-gold active:scale-95 transition">
-            <span class="text-2xl">➕</span>
-            <span>فروش جدید</span>
+          <button onclick="goTo('sale')" data-roles="admin,partner,seller" class="btn-gold flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
+            ➕ فروش جدید
           </button>
-          <button class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm active:scale-95 transition">
-            <span class="text-2xl">📦</span>
-            <span>ورود کالا</span>
+          <button onclick="goTo('stock-in')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
+            📦 ورود کالا
           </button>
-          <button class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm active:scale-95 transition">
-            <span class="text-2xl">👤</span>
-            <span>مشتری جدید</span>
+          <button onclick="goTo('customer-new')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
+            👤 مشتری جدید
           </button>
-          <button class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm active:scale-95 transition">
-            <span class="text-2xl">🏭</span>
-            <span>تأمین‌کننده</span>
+          <button onclick="goTo('supplier-new')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
+            🏭 تأمین‌کننده
           </button>
-          <button class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm active:scale-95 transition col-span-2 sm:col-span-1">
-            <span class="text-2xl">📷</span>
-            <span>اسکن فاکتور</span>
+          <button onclick="goTo('scan')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm col-span-2 sm:col-span-1">
+            📷 اسکن فاکتور
           </button>
         </div>
       </section>
 
-      <!-- ========== فروش ========== -->
+      <!-- فروش -->
       <section>
         <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          فروش
+          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span> فروش
         </h3>
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">فروش امروز</p>
-            <p class="text-xl font-bold text-veyma-gold">۱۲,۴۵۰,۰۰۰</p>
+            <p class="text-xl font-bold text-veyma-gold" id="stat-today-sales">—</p>
             <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
           </div>
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">فروش این ماه</p>
-            <p class="text-xl font-bold text-veyma-cream">۱۸۷,۳۰۰,۰۰۰</p>
+            <p class="text-xl font-bold text-veyma-cream" id="stat-month-sales">—</p>
             <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
           </div>
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">فاکتورهای امروز</p>
-            <p class="text-xl font-bold text-veyma-cream">۸</p>
-            <p class="text-[11px] text-veyma-muted mt-1">عدد</p>
+            <p class="text-xl font-bold text-veyma-cream" id="stat-today-invoices">—</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
+          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
             <p class="text-xs text-veyma-muted mb-1">سود امروز</p>
-            <p class="text-xl font-bold text-emerald-400">۳,۱۲۰,۰۰۰</p>
+            <p class="text-xl font-bold text-emerald-400" id="stat-today-profit">—</p>
             <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
           </div>
-          <div class="stat-card rounded-2xl p-4 col-span-2 lg:col-span-1">
+          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
             <p class="text-xs text-veyma-muted mb-1">سود ماه</p>
-            <p class="text-xl font-bold text-emerald-400">۴۲,۸۵۰,۰۰۰</p>
+            <p class="text-xl font-bold text-emerald-400" id="stat-month-profit">—</p>
             <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
           </div>
         </div>
       </section>
 
-      <!-- ========== مشتری ========== -->
+      <!-- مشتری و انبار -->
       <section>
         <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          مشتری
+          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span> مشتری و انبار
         </h3>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">تعداد مشتریان</p>
-            <p class="text-xl font-bold text-veyma-cream">۲۴۸</p>
+            <p class="text-xl font-bold text-veyma-cream" id="stat-customers">—</p>
           </div>
-          <div class="stat-card rounded-2xl p-4">
+          <div class="stat-card rounded-2xl p-4" data-roles="admin,partner">
             <p class="text-xs text-veyma-muted mb-1">طلب از مشتریان</p>
-            <p class="text-xl font-bold text-amber-400">۱۸,۷۰۰,۰۰۰</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
-          </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">مشتریان غیرفعال</p>
-            <p class="text-xl font-bold text-red-400">۱۲</p>
-            <p class="text-[11px] text-veyma-muted mt-1">بیش از ۶۰ روز</p>
-          </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">مشتریان باارزش</p>
-            <p class="text-xl font-bold text-veyma-gold">۱۹</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== انبار ========== -->
-      <section>
-        <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          انبار
-        </h3>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">ارزش موجودی</p>
-            <p class="text-xl font-bold text-veyma-cream">۹۴,۲۰۰,۰۰۰</p>
+            <p class="text-xl font-bold text-amber-400" id="stat-receivable">—</p>
             <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
           </div>
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">تعداد کالاها</p>
-            <p class="text-xl font-bold text-veyma-cream">۱۵۶</p>
+            <p class="text-xl font-bold text-veyma-cream" id="stat-products">—</p>
           </div>
           <div class="stat-card rounded-2xl p-4">
             <p class="text-xs text-veyma-muted mb-1">کم‌موجودی</p>
-            <p class="text-xl font-bold text-amber-400">۷</p>
-          </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">ناموجود</p>
-            <p class="text-xl font-bold text-red-400">۳</p>
+            <p class="text-xl font-bold text-amber-400" id="stat-low-stock">—</p>
           </div>
         </div>
-      </section>
-
-      <!-- ========== تأمین‌کنندگان ========== -->
-      <section>
-        <h3 class="text-sm font-medium text-veyma-muted mb-3 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          تأمین‌کنندگان
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">بدهی به تأمین‌کنندگان</p>
-            <p class="text-xl font-bold text-red-400">۲۷,۵۰۰,۰۰۰</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تومان</p>
-          </div>
-          <div class="stat-card rounded-2xl p-4">
-            <p class="text-xs text-veyma-muted mb-1">چک‌های نزدیک سررسید</p>
-            <p class="text-xl font-bold text-amber-400">۴</p>
-            <p class="text-[11px] text-veyma-muted mt-1">تا ۷ روز آینده</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- هشدار کمبود موجودی نمونه -->
-      <section class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
-        <span class="text-2xl">⚠️</span>
-        <div class="flex-1">
-          <p class="font-medium text-amber-300">موجودی شلوار کتان مشکی کم است</p>
-          <p class="text-sm text-veyma-muted mt-1">موجودی فعلی: ۳ عدد — حداقل: ۱۰ عدد</p>
-        </div>
-        <button class="text-xs text-veyma-muted hover:text-veyma-cream px-2 py-1 rounded-lg hover:bg-white/5 transition">
-          نادیده بگیر
-        </button>
       </section>
 
     </main>
   </div>
 
-  <!-- ========== اسکریپت ========== -->
+  <!-- ==================== اسکریپت ==================== -->
   <script>
-    // باز و بسته کردن سایدبار موبایل
+    // ==============================================
+    // کانفیگ فایربیس - این مقادیر را از کنسول فایربیس بردار
+    // ==============================================
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let currentRole = null;
+
+    // ==================== مدیریت ورود و نقش ====================
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const userDoc = await db.collection('users').doc(user.uid).get();
+
+          if (!userDoc.exists) {
+            await auth.signOut();
+            showLoginError('حساب شما هنوز توسط مدیر تأیید نشده است');
+            return;
+          }
+
+          const data = userDoc.data();
+
+          // بررسی وضعیت (عزل شدن)
+          if (data.status !== 'active') {
+            await auth.signOut();
+            showLoginError('دسترسی شما توسط مدیر غیرفعال شده است');
+            return;
+          }
+
+          currentUser = { uid: user.uid, email: user.email, ...data };
+          currentRole = data.role;
+
+          // نمایش برنامه
+          document.getElementById('login-page').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+
+          // اطلاعات کاربر
+          document.getElementById('user-name').textContent = data.name || 'کاربر';
+          document.getElementById('user-role-label').textContent = roleToPersian(currentRole);
+          document.getElementById('user-avatar').textContent = (data.name || 'ک').charAt(0);
+
+          applyRolePermissions();
+          loadDashboard();
+
+        } catch (error) {
+          console.error(error);
+          await auth.signOut();
+          showLoginError('خطا در بررسی دسترسی');
+        }
+      } else {
+        document.getElementById('login-page').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+        currentUser = null;
+        currentRole = null;
+      }
+    });
+
+    function roleToPersian(role) {
+      const map = { admin: 'مدیر', partner: 'شریک', seller: 'فروشنده' };
+      return map[role] || role;
+    }
+
+    // مخفی کردن بخش‌هایی که نقش فعلی اجازه ندارد
+    function applyRolePermissions() {
+      document.querySelectorAll('[data-roles]').forEach(el => {
+        const allowedRoles = el.getAttribute('data-roles').split(',');
+        if (allowedRoles.includes(currentRole)) {
+          el.classList.remove('hidden-role');
+        } else {
+          el.classList.add('hidden-role');
+        }
+      });
+    }
+
+    async function login() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        errorEl.classList.add('hidden');
+      } catch (err) {
+        showLoginError('ایمیل یا رمز عبور اشتباه است');
+      }
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    // ==================== بارگذاری داشبورد ====================
+    async function loadDashboard() {
+      try {
+        // تعداد مشتریان
+        const customersSnap = await db.collection('customers').where('status', '!=', 'deleted').get();
+        document.getElementById('stat-customers').textContent = customersSnap.size.toLocaleString('fa-IR');
+
+        // تعداد محصولات
+        const productsSnap = await db.collection('products').where('status', '!=', 'deleted').get();
+        document.getElementById('stat-products').textContent = productsSnap.size.toLocaleString('fa-IR');
+
+        // بقیه آمارها فعلاً صفر (بعداً با کوئری واقعی پر می‌شوند)
+        const zeroIds = [
+          'stat-today-sales', 'stat-month-sales', 'stat-today-invoices',
+          'stat-today-profit', 'stat-month-profit', 'stat-receivable', 'stat-low-stock'
+        ];
+        zeroIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = '۰';
+        });
+
+      } catch (err) {
+        console.error('خطا در بارگذاری داشبورد:', err);
+        showToast('خطا در دریافت اطلاعات');
+      }
+    }
+
+    // ==================== توابع رابط کاربری ====================
     function openSidebar() {
       document.getElementById('sidebar').classList.add('open');
       document.getElementById('overlay').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
+
     function closeSidebar() {
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('overlay').classList.add('hidden');
       document.body.style.overflow = '';
     }
 
-    // تاریخ شمسی ساده (نمونه)
-    // در نسخه واقعی از moment-jalaali یا dayjs با پلاگین شمسی استفاده کنید
+    function goTo(page) {
+      closeSidebar();
+
+      const titles = {
+        dashboard: 'داشبورد',
+        sale: 'فروش جدید',
+        'stock-in': 'ورود کالا',
+        'customer-new': 'مشتری جدید',
+        'supplier-new': 'تأمین‌کننده جدید',
+        scan: 'اسکن فاکتور',
+        customers: 'مشتریان',
+        inventory: 'انبار',
+        suppliers: 'تأمین‌کنندگان',
+        checks: 'چک‌ها',
+        accounts: 'حساب‌ها',
+        reports: 'گزارش‌ها',
+        ai: 'دستیار هوشمند',
+        activities: 'فعالیت‌ها',
+        deleted: 'حذف‌شده‌ها',
+        users: 'مدیریت کاربران',
+        settings: 'تنظیمات'
+      };
+
+      document.getElementById('page-title').textContent = titles[page] || page;
+      showToast('رفتن به: ' + (titles[page] || page));
+    }
+
+    function showToast(message) {
+      const old = document.getElementById('veyma-toast');
+      if (old) old.remove();
+
+      const toast = document.createElement('div');
+      toast.id = 'veyma-toast';
+      toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-veyma-navy border border-veyma-gold/40 text-veyma-cream px-6 py-3 rounded-2xl shadow-lg z-50 text-sm';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 2200);
+    }
+
+    // تاریخ شمسی
     document.getElementById('current-date').textContent =
       new Date().toLocaleDateString('fa-IR', {
         weekday: 'long',
@@ -414,7 +513,7 @@
         minute: '2-digit'
       });
 
-    // بستن سایدبار با کلید Escape
+    // بستن منو با Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSidebar();
     });
