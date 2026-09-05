@@ -98,7 +98,6 @@
 
     .hidden-role { display: none !important; }
 
-    /* لودینگ */
     .loading-overlay {
       position: fixed;
       inset: 0;
@@ -347,9 +346,6 @@
 
   <!-- ==================== اسکریپت ==================== -->
   <script>
-    // ==============================================
-    // کانفیگ فایربیس
-    // ==============================================
     const firebaseConfig = {
       apiKey: "AIzaSyBrNNy3JlP68yoaSANC3usPCDX33JKVBEM",
       authDomain: "veyma-vip.firebaseapp.com",
@@ -366,9 +362,7 @@
     let currentUser = null;
     let currentRole = null;
 
-    // ==================== مدیریت ورود و نقش ====================
     auth.onAuthStateChanged(async (user) => {
-      // مخفی کردن لودینگ اولیه
       const initialLoading = document.getElementById('initial-loading');
       if (initialLoading) initialLoading.style.display = 'none';
 
@@ -412,12 +406,12 @@
           document.getElementById('login-page').classList.remove('hidden');
         }
       } else {
+        closeSidebar(); // بستن سایدبار هنگام خروج
         document.getElementById('login-page').classList.remove('hidden');
         document.getElementById('app').classList.add('hidden');
         currentUser = null;
         currentRole = null;
 
-        // برگرداندن دکمه ورود به حالت عادی
         const btn = document.getElementById('login-btn');
         const btnText = document.getElementById('login-btn-text');
         const spinner = document.getElementById('login-spinner');
@@ -480,10 +474,10 @@
     }
 
     function logout() {
+      closeSidebar(); // بستن سایدبار قبل از خروج
       auth.signOut();
     }
 
-    // ==================== بارگذاری داشبورد ====================
     async function loadDashboard() {
       try {
         const customersSnap = await db.collection('customers').where('status', '!=', 'deleted').get();
@@ -506,7 +500,6 @@
       }
     }
 
-    // ==================== توابع رابط کاربری ====================
     function openSidebar() {
       document.getElementById('sidebar').classList.add('open');
       document.getElementById('overlay').classList.remove('hidden');
@@ -563,7 +556,6 @@
       }, 2200);
     }
 
-    // تاریخ شمسی
     document.getElementById('current-date').textContent =
       new Date().toLocaleDateString('fa-IR', {
         weekday: 'long',
