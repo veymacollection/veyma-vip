@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0a0f1c" />
-  <meta name="description" content="نرم‌افزار مدیریت فروشگاه Veyma Collection" />
-  <title>Veyma Collection | مدیریت فروشگاه</title>
+  <title>فروش | Veyma Collection</title>
 
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -43,264 +42,143 @@
 
     .fade-in { animation: fadeIn 0.35s ease-out; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .sidebar-mobile {
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .sidebar-mobile.open { transform: translateX(0); }
-
-    /* دکمه‌های اصلی صفحه */
-    .main-btn {
-      transition: all 0.25s ease;
-      border-radius: 1.25rem;
-    }
-    .main-btn:active {
-      transform: scale(0.97);
+    .card {
+      background: linear-gradient(160deg, #121a2b 0%, #0d1424 100%);
+      border: 1px solid rgba(212, 175, 55, 0.15);
     }
 
-    .btn-sale {
-      background: linear-gradient(145deg, #dc2626 0%, #b91c1c 100%);
-      box-shadow: 0 8px 20px -6px rgba(220, 38, 38, 0.45);
-    }
-    .btn-sale:hover {
-      background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
-      transform: translateY(-2px);
-    }
-
-    .btn-purchase {
-      background: linear-gradient(145deg, #16a34a 0%, #15803d 100%);
-      box-shadow: 0 8px 20px -6px rgba(22, 163, 74, 0.45);
-    }
-    .btn-purchase:hover {
-      background: linear-gradient(145deg, #22c55e 0%, #16a34a 100%);
-      transform: translateY(-2px);
-    }
-
-    .btn-scan {
-      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-      border: 1.5px solid rgba(212, 175, 55, 0.4);
-    }
-    .btn-scan:hover {
-      border-color: rgba(212, 175, 55, 0.7);
-      background: #1e293b;
-      transform: translateY(-2px);
-    }
-
-    .btn-lowstock {
-      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-      border: 1.5px solid rgba(239, 68, 68, 0.35);
-    }
-    .btn-lowstock:hover {
-      border-color: rgba(239, 68, 68, 0.6);
-      transform: translateY(-2px);
-    }
-
-    .nav-item {
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212, 175, 55, 0.2);
       transition: all 0.2s;
-      font-size: 15px;
-      font-weight: 600;
     }
-    .nav-item.active {
-      background: rgba(212, 175, 55, 0.14);
-      color: #d4af37;
-      border-right: 3px solid #d4af37;
-    }
-    .nav-item:hover:not(.active) {
-      background: rgba(255,255,255,0.06);
-      color: #f8f5ef;
+    .input-field:focus {
+      outline: none;
+      border-color: #d4af37;
+      background: rgba(255,255,255,0.08);
     }
 
-    .hidden-role { display: none !important; }
-
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: #0a0f1c;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      transform: translateY(-1px);
     }
 
-    .spinner {
-      width: 42px;
-      height: 42px;
-      border: 3px solid rgba(212, 175, 55, 0.2);
-      border-top-color: #d4af37;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .medal-gold { color: #fbbf24; }
+    .medal-silver { color: #94a3b8; }
+    .medal-bronze { color: #d97706; }
+    .medal-normal { color: #6b7280; }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .btn-loading {
-      opacity: 0.75;
-      pointer-events: none;
-    }
+    .profit { color: #22c55e; }
   </style>
 </head>
 <body class="min-h-screen font-vazir antialiased">
 
-  <!-- لودینگ اولیه -->
-  <div id="initial-loading" class="loading-overlay">
-    <div class="spinner"></div>
-    <p class="text-veyma-gold text-sm tracking-wide">در حال بررسی دسترسی...</p>
-  </div>
-
-  <!-- صفحه لاگین -->
-  <div id="login-page" class="fixed inset-0 z-50 bg-veyma-dark flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-md bg-veyma-navy border border-veyma-gold/20 rounded-3xl p-8 shadow-2xl">
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center mb-4 shadow-lg shadow-veyma-gold/20">
-          <span class="text-veyma-dark font-bold text-2xl">V</span>
-        </div>
-        <h1 class="text-2xl font-bold text-veyma-gold tracking-tight">Veyma Collection</h1>
-        <p class="text-veyma-muted text-sm mt-2">ورود به پنل مدیریت فروشگاه</p>
-      </div>
-
-      <div class="space-y-5">
-        <div>
-          <label class="text-sm text-veyma-muted mb-1.5 block">ایمیل</label>
-          <input id="login-email" type="email" placeholder="email@example.com"
-                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3.5 text-veyma-cream placeholder:text-veyma-muted/60 focus:outline-none focus:border-veyma-gold transition-colors" />
-        </div>
-        <div>
-          <label class="text-sm text-veyma-muted mb-1.5 block">رمز عبور</label>
-          <input id="login-password" type="password" placeholder="••••••••"
-                 class="w-full bg-white/5 border border-veyma-gold/20 rounded-xl px-4 py-3.5 text-veyma-cream placeholder:text-veyma-muted/60 focus:outline-none focus:border-veyma-gold transition-colors" />
-        </div>
-        <button id="login-btn" onclick="login()" class="w-full py-3.5 rounded-xl text-base mt-1 flex items-center justify-center gap-2 font-bold"
-                style="background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0f1c;">
-          <span id="login-btn-text">ورود به پنل</span>
-          <div id="login-spinner" class="spinner hidden" style="width:18px;height:18px;border-width:2px;"></div>
-        </button>
-        <p id="login-error" class="text-red-400 text-sm text-center hidden"></p>
+  <!-- هدر -->
+  <header class="sticky top-0 z-30 bg-veyma-dark/95 backdrop-blur-md border-b border-veyma-gold/10 px-4 py-3.5">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition-colors">
+        →
+      </a>
+      <div>
+        <h1 class="text-lg font-bold text-veyma-cream">فروش جدید</h1>
+        <p class="text-xs text-veyma-muted" id="current-date">—</p>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Overlay موبایل -->
-  <div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+  <main class="p-4 md:p-6 space-y-6 fade-in max-w-2xl mx-auto">
 
-  <!-- سایدبار -->
-  <aside id="sidebar" class="fixed top-0 right-0 h-full w-72 bg-veyma-navy border-l border-veyma-gold/20 z-50 sidebar-mobile lg:translate-x-0 flex flex-col shadow-2xl">
-    
-    <div class="flex items-center justify-between p-5 border-b border-veyma-gold/15">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-veyma-gold to-amber-600 flex items-center justify-center shadow-md shadow-veyma-gold/20">
-          <span class="text-veyma-dark font-bold text-lg">V</span>
-        </div>
+    <!-- فرم ثبت فروش -->
+    <section class="card rounded-2xl p-5">
+      <h2 class="text-base font-bold text-veyma-gold mb-4 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+        ثبت فروش
+      </h2>
+
+      <div class="space-y-4">
+        <!-- مشتری -->
         <div>
-          <h1 class="text-veyma-gold font-bold text-lg leading-tight">Veyma</h1>
-          <p class="text-xs text-veyma-muted tracking-wide">Collection</p>
+          <label class="text-sm text-veyma-muted mb-1.5 block">نام مشتری</label>
+          <input id="customer-name" type="text" placeholder="نام مشتری را وارد کنید"
+                 class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream" list="customers-list" />
+          <datalist id="customers-list"></datalist>
         </div>
-      </div>
-      <button onclick="closeSidebar()" class="lg:hidden w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition-colors">
-        ✕
-      </button>
-    </div>
 
-    <nav class="flex-1 overflow-y-auto py-5 px-3 space-y-1.5">
-      <a href="#" onclick="goTo('dashboard'); return false;" data-roles="admin,partner,seller" class="nav-item active flex items-center gap-3 px-4 py-3.5 rounded-xl">
-        داشبورد
-      </a>
-      <a href="#" onclick="goTo('sale'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        فروش
-      </a>
-      <a href="#" onclick="goTo('purchase'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        خرید
-      </a>
-      <a href="#" onclick="goTo('accounts'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        حساب
-      </a>
-      <a href="#" onclick="goTo('activities'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        فعالیت
-      </a>
-      <a href="#" onclick="goTo('users'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        مدیریت کاربران
-      </a>
-      <a href="#" onclick="goTo('settings'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl text-veyma-muted">
-        تنظیمات
-      </a>
-    </nav>
-
-    <div class="p-4 border-t border-veyma-gold/15">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-veyma-gold/20 flex items-center justify-center text-veyma-gold font-bold" id="user-avatar">م</div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold truncate text-veyma-cream" id="user-name">—</p>
-          <p class="text-xs text-veyma-muted" id="user-role-label">—</p>
+        <div>
+          <label class="text-sm text-veyma-muted mb-1.5 block">شماره تلفن</label>
+          <input id="customer-phone" type="tel" placeholder="09xxxxxxxxx"
+                 class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream" />
         </div>
-        <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-colors font-medium">خروج</button>
-      </div>
-    </div>
-  </aside>
 
-  <!-- محتوای اصلی -->
-  <div id="app" class="lg:mr-72 min-h-screen flex flex-col hidden">
-
-    <header class="sticky top-0 z-30 bg-veyma-dark/90 backdrop-blur-md border-b border-veyma-gold/10 px-4 py-3.5">
-      <div class="flex items-center justify-between gap-3">
-        <button onclick="openSidebar()" class="lg:hidden w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center text-veyma-gold hover:bg-white/10 transition-colors">
-          ☰
-        </button>
-        <div class="flex-1">
-          <h2 class="text-xl font-bold text-veyma-cream tracking-tight" id="page-title">داشبورد</h2>
-          <p class="text-xs text-veyma-muted mt-0.5" id="current-date">—</p>
+        <!-- کالا -->
+        <div>
+          <label class="text-sm text-veyma-muted mb-1.5 block">انتخاب کالا از انبار</label>
+          <select id="product-select" class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream">
+            <option value="">— انتخاب کالا —</option>
+          </select>
         </div>
-      </div>
-    </header>
 
-    <main class="flex-1 p-4 md:p-6 fade-in" id="main-content">
-
-      <!-- چهار دکمه اصلی -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mt-4">
-
-        <!-- فروش (قرمز) -->
-        <button onclick="goTo('sale')" data-roles="admin,partner,seller"
-                class="main-btn btn-sale flex flex-col items-center justify-center gap-3 py-8 px-5 text-white">
-          <span class="text-3xl font-bold">＋</span>
-          <span class="text-xl font-bold tracking-wide">فروش</span>
-        </button>
-
-        <!-- خرید (سبز) -->
-        <button onclick="goTo('purchase')" data-roles="admin,partner"
-                class="main-btn btn-purchase flex flex-col items-center justify-center gap-3 py-8 px-5 text-white">
-          <span class="text-3xl">🛒</span>
-          <span class="text-xl font-bold tracking-wide">خرید</span>
-        </button>
-
-        <!-- اسکن فاکتور -->
-        <button onclick="goTo('scan')" data-roles="admin,partner,seller"
-                class="main-btn btn-scan flex flex-col items-center justify-center gap-3 py-8 px-5 text-veyma-gold">
-          <span class="text-3xl">📷</span>
-          <span class="text-xl font-bold tracking-wide">اسکن فاکتور</span>
-        </button>
-
-        <!-- موجودی رو به اتمام -->
-        <button onclick="goTo('inventory')" data-roles="admin,partner,seller"
-                class="main-btn btn-lowstock flex items-center justify-center gap-4 py-8 px-5">
-          <div class="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center">
-            <span class="text-red-500 text-2xl">⚠</span>
+        <!-- تعداد -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm text-veyma-muted mb-1.5 block">تعداد (عدد)</label>
+            <input id="qty-number" type="number" min="0" placeholder="0"
+                   class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream" />
           </div>
-          <div class="text-right">
-            <p class="text-lg font-bold text-veyma-cream leading-tight">موجودی رو به اتمام</p>
-            <p class="text-sm text-veyma-muted mt-1" id="stat-low-stock">۰ قلم</p>
+          <div>
+            <label class="text-sm text-veyma-muted mb-1.5 block">تعداد جین</label>
+            <input id="qty-jean" type="number" min="0" step="0.5" placeholder="0"
+                   class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream" />
           </div>
+        </div>
+
+        <!-- اطلاعات قیمت و سود -->
+        <div id="price-info" class="hidden bg-white/5 rounded-xl p-4 space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-veyma-muted">قیمت خرید واحد:</span>
+            <span id="cost-price" class="text-veyma-cream">۰ تومان</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-veyma-muted">قیمت فروش واحد:</span>
+            <span id="sale-price" class="text-veyma-cream">۰ تومان</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold border-t border-white/10 pt-2 mt-2">
+            <span class="text-veyma-muted">سود این فروش:</span>
+            <span id="profit-value" class="profit">۰ تومان</span>
+          </div>
+        </div>
+
+        <button onclick="submitSale()" class="btn-primary w-full py-3.5 rounded-xl text-white font-bold text-base mt-2">
+          ثبت فروش
         </button>
-
       </div>
+    </section>
 
-    </main>
-  </div>
+    <!-- لیست مشتریان -->
+    <section>
+      <h2 class="text-base font-bold text-veyma-gold mb-3 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-veyma-gold"></span>
+        مشتریان
+      </h2>
+
+      <div id="customers-container" class="space-y-3">
+        <!-- مشتریان اینجا لود می‌شوند -->
+        <p class="text-center text-veyma-muted text-sm py-8">در حال بارگذاری مشتریان...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-veyma-navy border border-veyma-gold/40 text-veyma-cream px-6 py-3 rounded-2xl shadow-lg z-50 text-sm font-medium hidden"></div>
 
   <script>
     const firebaseConfig = {
@@ -316,206 +194,262 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentUser = null;
-    let currentRole = null;
+    let products = [];
+    let customers = [];
+    let selectedProduct = null;
 
-    auth.onAuthStateChanged(async (user) => {
-      const initialLoading = document.getElementById('initial-loading');
-      if (initialLoading) initialLoading.style.display = 'none';
+    // تاریخ
+    document.getElementById('current-date').textContent =
+      new Date().toLocaleDateString('fa-IR', { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' }) +
+      ' — ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
-      if (user) {
-        try {
-          const userDoc = await db.collection('users').doc(user.uid).get();
-
-          if (!userDoc.exists) {
-            await auth.signOut();
-            showLoginError('حساب شما هنوز توسط مدیر تأیید نشده است');
-            document.getElementById('login-page').classList.remove('hidden');
-            return;
-          }
-
-          const data = userDoc.data();
-
-          if (data.status !== 'active') {
-            await auth.signOut();
-            showLoginError('دسترسی شما توسط مدیر غیرفعال شده است');
-            document.getElementById('login-page').classList.remove('hidden');
-            return;
-          }
-
-          currentUser = { uid: user.uid, email: user.email, ...data };
-          currentRole = data.role;
-
-          document.getElementById('login-page').classList.add('hidden');
-          document.getElementById('app').classList.remove('hidden');
-
-          document.getElementById('user-name').textContent = data.name || 'کاربر';
-          document.getElementById('user-role-label').textContent = roleToPersian(currentRole);
-          document.getElementById('user-avatar').textContent = (data.name || 'ک').charAt(0);
-
-          applyRolePermissions();
-          loadDashboard();
-
-        } catch (error) {
-          console.error(error);
-          await auth.signOut();
-          showLoginError('خطا در بررسی دسترسی');
-          document.getElementById('login-page').classList.remove('hidden');
-        }
-      } else {
-        closeSidebar();
-        document.getElementById('login-page').classList.remove('hidden');
-        document.getElementById('app').classList.add('hidden');
-        currentUser = null;
-        currentRole = null;
-
-        const btn = document.getElementById('login-btn');
-        const btnText = document.getElementById('login-btn-text');
-        const spinner = document.getElementById('login-spinner');
-        if (btn) {
-          btn.classList.remove('btn-loading');
-          btnText.textContent = 'ورود به پنل';
-          spinner.classList.add('hidden');
-        }
-      }
-    });
-
-    function roleToPersian(role) {
-      const map = { admin: 'مدیر', partner: 'شریک', seller: 'فروشنده' };
-      return map[role] || role;
-    }
-
-    function applyRolePermissions() {
-      document.querySelectorAll('[data-roles]').forEach(el => {
-        const allowedRoles = el.getAttribute('data-roles').split(',');
-        if (allowedRoles.includes(currentRole)) {
-          el.classList.remove('hidden-role');
-        } else {
-          el.classList.add('hidden-role');
-        }
-      });
-    }
-
-    async function login() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      const errorEl = document.getElementById('login-error');
-      const btn = document.getElementById('login-btn');
-      const btnText = document.getElementById('login-btn-text');
-      const spinner = document.getElementById('login-spinner');
-
-      if (!email || !password) {
-        showLoginError('ایمیل و رمز عبور را وارد کنید');
+    // بررسی ورود
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'index.html';
         return;
       }
-
-      btn.classList.add('btn-loading');
-      btnText.textContent = 'در حال ورود...';
-      spinner.classList.remove('hidden');
-      errorEl.classList.add('hidden');
-
-      try {
-        await auth.signInWithEmailAndPassword(email, password);
-      } catch (err) {
-        showLoginError('ایمیل یا رمز عبور اشتباه است');
-        btn.classList.remove('btn-loading');
-        btnText.textContent = 'ورود به پنل';
-        spinner.classList.add('hidden');
-      }
-    }
-
-    function showLoginError(msg) {
-      const el = document.getElementById('login-error');
-      el.textContent = msg;
-      el.classList.remove('hidden');
-    }
-
-    function logout() {
-      closeSidebar();
-      auth.signOut();
-    }
-
-    async function loadDashboard() {
-      try {
-        const el = document.getElementById('stat-low-stock');
-        if (el) el.textContent = '۰ قلم';
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    function openSidebar() {
-      document.getElementById('sidebar').classList.add('open');
-      document.getElementById('overlay').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('overlay').classList.add('hidden');
-      document.body.style.overflow = '';
-    }
-
-    function goTo(page) {
-      closeSidebar();
-
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        item.classList.add('text-veyma-muted');
-      });
-      const activeLink = document.querySelector(`.nav-item[onclick*="'${page}'"]`);
-      if (activeLink) {
-        activeLink.classList.add('active');
-        activeLink.classList.remove('text-veyma-muted');
-      }
-
-      const titles = {
-        dashboard: 'داشبورد',
-        sale: 'فروش',
-        purchase: 'خرید',
-        scan: 'اسکن فاکتور',
-        accounts: 'حساب',
-        activities: 'فعالیت',
-        users: 'مدیریت کاربران',
-        settings: 'تنظیمات',
-        inventory: 'موجودی رو به اتمام'
-      };
-
-      document.getElementById('page-title').textContent = titles[page] || page;
-      showToast('رفتن به: ' + (titles[page] || page));
-    }
-
-    function showToast(message) {
-      const old = document.getElementById('veyma-toast');
-      if (old) old.remove();
-
-      const toast = document.createElement('div');
-      toast.id = 'veyma-toast';
-      toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-veyma-navy border border-veyma-gold/40 text-veyma-cream px-6 py-3 rounded-2xl shadow-lg z-50 text-sm font-medium';
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s';
-        setTimeout(() => toast.remove(), 300);
-      }, 2200);
-    }
-
-    document.getElementById('current-date').textContent =
-      new Date().toLocaleDateString('fa-IR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }) + ' — ' + new Date().toLocaleTimeString('fa-IR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSidebar();
+      loadProducts();
+      loadCustomers();
     });
+
+    // بارگذاری کالاها از انبار
+    async function loadProducts() {
+      try {
+        const snap = await db.collection('products').where('status', '!=', 'deleted').get();
+        products = [];
+        const select = document.getElementById('product-select');
+        select.innerHTML = '<option value="">— انتخاب کالا —</option>';
+
+        snap.forEach(doc => {
+          const p = { id: doc.id, ...doc.data() };
+          products.push(p);
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.name} (موجودی: ${p.stock || 0})`;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در بارگذاری کالاها');
+      }
+    }
+
+    // وقتی کالا انتخاب شد
+    document.getElementById('product-select').addEventListener('change', function () {
+      const id = this.value;
+      selectedProduct = products.find(p => p.id === id) || null;
+
+      if (selectedProduct) {
+        document.getElementById('price-info').classList.remove('hidden');
+        document.getElementById('cost-price').textContent = (selectedProduct.costPrice || 0).toLocaleString('fa-IR') + ' تومان';
+        document.getElementById('sale-price').textContent = (selectedProduct.salePrice || 0).toLocaleString('fa-IR') + ' تومان';
+        calculateProfit();
+      } else {
+        document.getElementById('price-info').classList.add('hidden');
+      }
+    });
+
+    // محاسبه سود هنگام تغییر تعداد
+    document.getElementById('qty-number').addEventListener('input', calculateProfit);
+    document.getElementById('qty-jean').addEventListener('input', calculateProfit);
+
+    function calculateProfit() {
+      if (!selectedProduct) return;
+
+      const qtyNumber = parseFloat(document.getElementById('qty-number').value) || 0;
+      const qtyJean = parseFloat(document.getElementById('qty-jean').value) || 0;
+      const totalQty = qtyNumber + (qtyJean * 12); // هر جین = ۱۲ عدد
+
+      const cost = selectedProduct.costPrice || 0;
+      const sale = selectedProduct.salePrice || 0;
+      const profit = (sale - cost) * totalQty;
+
+      document.getElementById('profit-value').textContent = profit.toLocaleString('fa-IR') + ' تومان';
+    }
+
+    // ثبت فروش
+    async function submitSale() {
+      const name = document.getElementById('customer-name').value.trim();
+      const phone = document.getElementById('customer-phone').value.trim();
+      const productId = document.getElementById('product-select').value;
+      const qtyNumber = parseFloat(document.getElementById('qty-number').value) || 0;
+      const qtyJean = parseFloat(document.getElementById('qty-jean').value) || 0;
+      const totalQty = qtyNumber + (qtyJean * 12);
+
+      if (!name) return showToast('نام مشتری را وارد کنید');
+      if (!productId) return showToast('کالا را انتخاب کنید');
+      if (totalQty <= 0) return showToast('تعداد را مشخص کنید');
+
+      const product = products.find(p => p.id === productId);
+      if (!product) return showToast('کالا یافت نشد');
+
+      if ((product.stock || 0) < totalQty) {
+        return showToast('موجودی کافی نیست!');
+      }
+
+      try {
+        const cost = product.costPrice || 0;
+        const salePrice = product.salePrice || 0;
+        const profit = (salePrice - cost) * totalQty;
+        const totalAmount = salePrice * totalQty;
+
+        // ثبت فروش
+        await db.collection('sales').add({
+          customerName: name,
+          customerPhone: phone,
+          productId: productId,
+          productName: product.name,
+          qtyNumber,
+          qtyJean,
+          totalQty,
+          costPrice: cost,
+          salePrice,
+          totalAmount,
+          profit,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: auth.currentUser.uid
+        });
+
+        // کم کردن از انبار
+        await db.collection('products').doc(productId).update({
+          stock: firebase.firestore.FieldValue.increment(-totalQty)
+        });
+
+        // به‌روزرسانی یا ایجاد مشتری
+        await upsertCustomer(name, phone, totalAmount, product.name);
+
+        showToast('فروش با موفقیت ثبت شد');
+        // پاک کردن فرم
+        document.getElementById('customer-name').value = '';
+        document.getElementById('customer-phone').value = '';
+        document.getElementById('product-select').value = '';
+        document.getElementById('qty-number').value = '';
+        document.getElementById('qty-jean').value = '';
+        document.getElementById('price-info').classList.add('hidden');
+        selectedProduct = null;
+
+        loadProducts();
+        loadCustomers();
+
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در ثبت فروش');
+      }
+    }
+
+    // به‌روزرسانی مشتری
+    async function upsertCustomer(name, phone, amount, productName) {
+      const snap = await db.collection('customers')
+        .where('phone', '==', phone)
+        .limit(1)
+        .get();
+
+      if (snap.empty) {
+        await db.collection('customers').add({
+          name,
+          phone,
+          totalSpent: amount,
+          purchaseCount: 1,
+          lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
+          mostBought: { [productName]: 1 },
+          status: 'active'
+        });
+      } else {
+        const doc = snap.docs[0];
+        const data = doc.data();
+        const mostBought = data.mostBought || {};
+        mostBought[productName] = (mostBought[productName] || 0) + 1;
+
+        await doc.ref.update({
+          name,
+          totalSpent: (data.totalSpent || 0) + amount,
+          purchaseCount: (data.purchaseCount || 0) + 1,
+          lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
+          mostBought
+        });
+      }
+    }
+
+    // بارگذاری مشتریان
+    async function loadCustomers() {
+      try {
+        const snap = await db.collection('customers')
+          .where('status', '==', 'active')
+          .orderBy('totalSpent', 'desc')
+          .limit(50)
+          .get();
+
+        const container = document.getElementById('customers-container');
+        const datalist = document.getElementById('customers-list');
+        datalist.innerHTML = '';
+
+        if (snap.empty) {
+          container.innerHTML = '<p class="text-center text-veyma-muted text-sm py-8">هنوز مشتری ثبت نشده</p>';
+          return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+          const c = doc.data();
+          const medal = getMedal(c.totalSpent || 0, c.purchaseCount || 0);
+          const lastDate = c.lastPurchase ? c.lastPurchase.toDate().toLocaleString('fa-IR') : '—';
+          const most = getMostBought(c.mostBought);
+
+          // برای datalist
+          const opt = document.createElement('option');
+          opt.value = c.name;
+          datalist.appendChild(opt);
+
+          html += `
+            <div class="card rounded-2xl p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xl">${medal.icon}</span>
+                    <h3 class="font-bold text-veyma-cream">${c.name}</h3>
+                    <span class="text-xs \( {medal.color}"> \){medal.label}</span>
+                  </div>
+                  <p class="text-sm text-veyma-muted">${c.phone || '—'}</p>
+                  <p class="text-xs text-veyma-muted mt-1">آخرین خرید: ${lastDate}</p>
+                  <p class="text-xs text-veyma-muted mt-0.5">بیشترین خرید: ${most}</p>
+                </div>
+                <div class="text-left">
+                  <p class="text-sm font-bold text-veyma-gold">${(c.totalSpent || 0).toLocaleString('fa-IR')}</p>
+                  <p class="text-[11px] text-veyma-muted">تومان</p>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('customers-container').innerHTML =
+          '<p class="text-center text-red-400 text-sm py-6">خطا در بارگذاری مشتریان</p>';
+      }
+    }
+
+    function getMedal(totalSpent, count) {
+      if (totalSpent >= 50000000 || count >= 20) return { icon: '🥇', label: 'طلایی', color: 'medal-gold' };
+      if (totalSpent >= 20000000 || count >= 10) return { icon: '🥈', label: 'نقره‌ای', color: 'medal-silver' };
+      if (totalSpent >= 5000000 || count >= 5) return { icon: '🥉', label: 'برنزی', color: 'medal-bronze' };
+      return { icon: '⚪', label: 'معمولی', color: 'medal-normal' };
+    }
+
+    function getMostBought(mostBought) {
+      if (!mostBought || Object.keys(mostBought).length === 0) return '—';
+      const sorted = Object.entries(mostBought).sort((a, b) => b[1] - a[1]);
+      return sorted[0][0];
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 2500);
+    }
   </script>
 </body>
 </html>
