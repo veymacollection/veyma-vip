@@ -57,7 +57,6 @@
     }
     .sidebar-mobile.open { transform: translateX(0); }
 
-    /* کارت‌های آماری بهبود یافته */
     .stat-card {
       background: linear-gradient(160deg, #121a2b 0%, #0d1424 100%);
       border: 1px solid rgba(212, 175, 55, 0.12);
@@ -99,6 +98,17 @@
     .btn-outline:hover {
       background: rgba(212, 175, 55, 0.1);
       border-color: rgba(212, 175, 55, 0.7);
+    }
+
+    .sale-card {
+      background: linear-gradient(160deg, #121a2b 0%, #0d1424 100%);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      transition: all 0.3s ease;
+    }
+    .sale-card:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.45);
     }
 
     .nav-item { transition: all 0.2s; }
@@ -144,7 +154,6 @@
       pointer-events: none;
     }
 
-    /* بهبود خوانایی اعداد */
     .stat-value {
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.02em;
@@ -193,7 +202,7 @@
   <!-- Overlay موبایل -->
   <div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
 
-  <!-- ==================== سایدبار ==================== -->
+  <!-- ==================== سایدبار (منوی ساده) ==================== -->
   <aside id="sidebar" class="fixed top-0 right-0 h-full w-72 bg-veyma-navy border-l border-veyma-gold/20 z-50 sidebar-mobile lg:translate-x-0 flex flex-col shadow-2xl">
     
     <div class="flex items-center justify-between p-5 border-b border-veyma-gold/15">
@@ -216,34 +225,16 @@
         داشبورد
       </a>
       <a href="#" onclick="goTo('sale'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        فروش و فاکتور
+        فروش
       </a>
-      <a href="#" onclick="goTo('customers'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        مشتریان
-      </a>
-      <a href="#" onclick="goTo('inventory'); return false;" data-roles="admin,partner,seller" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        انبار
-      </a>
-      <a href="#" onclick="goTo('suppliers'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        تأمین‌کنندگان
-      </a>
-      <a href="#" onclick="goTo('checks'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        چک‌ها
+      <a href="#" onclick="goTo('purchase'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
+        خرید
       </a>
       <a href="#" onclick="goTo('accounts'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        حساب‌ها
-      </a>
-      <a href="#" onclick="goTo('reports'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        گزارش‌ها
-      </a>
-      <a href="#" onclick="goTo('ai'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        دستیار هوشمند
+        حساب
       </a>
       <a href="#" onclick="goTo('activities'); return false;" data-roles="admin,partner" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        فعالیت‌ها
-      </a>
-      <a href="#" onclick="goTo('deleted'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
-        حذف‌شده‌ها
+        فعالیت
       </a>
       <a href="#" onclick="goTo('users'); return false;" data-roles="admin" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-veyma-muted">
         مدیریت کاربران
@@ -280,117 +271,83 @@
       </div>
     </header>
 
-    <main class="flex-1 p-4 md:p-6 space-y-8 fade-in" id="main-content">
+    <main class="flex-1 p-4 md:p-6 space-y-6 fade-in" id="main-content">
 
       <!-- فعالیت سریع -->
       <section>
         <h3 class="text-sm font-medium text-veyma-muted mb-3.5 tracking-wide">فعالیت سریع</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <button onclick="goTo('sale')" data-roles="admin,partner,seller" class="btn-gold flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            <span class="text-lg">＋</span>
-            <span>فروش جدید</span>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- دکمه فروش + آمار داخلش -->
+          <button onclick="goTo('sale')" data-roles="admin,partner,seller" 
+                  class="sale-card rounded-2xl p-5 text-right w-full">
+            
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-veyma-gold"></span>
+                <span class="text-veyma-gold font-semibold text-base">فروش</span>
+              </div>
+              <span class="text-veyma-gold text-xl">＋</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="bg-white/5 rounded-xl px-3 py-2.5">
+                <p class="text-[11px] text-veyma-muted mb-1">فروش امروز</p>
+                <p class="stat-value font-bold text-veyma-gold text-[15px]" id="stat-today-sales">۰</p>
+                <p class="text-[10px] text-veyma-muted/70">تومان</p>
+              </div>
+
+              <div class="bg-white/5 rounded-xl px-3 py-2.5">
+                <p class="text-[11px] text-veyma-muted mb-1">فروش این ماه</p>
+                <p class="stat-value font-bold text-veyma-cream text-[15px]" id="stat-month-sales">۰</p>
+                <p class="text-[10px] text-veyma-muted/70">تومان</p>
+              </div>
+
+              <div class="bg-white/5 rounded-xl px-3 py-2.5">
+                <p class="text-[11px] text-veyma-muted mb-1">فاکتورهای امروز</p>
+                <p class="stat-value font-bold text-veyma-cream text-[15px]" id="stat-today-invoices">۰</p>
+                <p class="text-[10px] text-veyma-muted/70">عدد</p>
+              </div>
+
+              <div class="bg-white/5 rounded-xl px-3 py-2.5" data-roles="admin,partner">
+                <p class="text-[11px] text-veyma-muted mb-1">سود امروز</p>
+                <p class="stat-value font-bold text-emerald-400 text-[15px]" id="stat-today-profit">۰</p>
+                <p class="text-[10px] text-veyma-muted/70">تومان</p>
+              </div>
+            </div>
+
+            <div class="mt-3 bg-white/5 rounded-xl px-3 py-2.5" data-roles="admin,partner">
+              <div class="flex items-center justify-between">
+                <p class="text-[11px] text-veyma-muted">سود این ماه</p>
+                <p class="stat-value font-bold text-emerald-400 text-[15px]" id="stat-month-profit">۰ <span class="text-[10px] text-veyma-muted/70 font-normal">تومان</span></p>
+              </div>
+            </div>
           </button>
-          <button onclick="goTo('stock-in')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            <span class="text-lg">📦</span>
-            <span>ورود کالا</span>
-          </button>
-          <button onclick="goTo('customer-new')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            <span class="text-lg">👤</span>
-            <span>مشتری جدید</span>
-          </button>
-          <button onclick="goTo('supplier-new')" data-roles="admin,partner" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm">
-            <span class="text-lg">🏭</span>
-            <span>تأمین‌کننده</span>
-          </button>
-          <button onclick="goTo('scan')" data-roles="admin,partner,seller" class="btn-outline flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-sm col-span-2 sm:col-span-1">
-            <span class="text-lg">📷</span>
-            <span>اسکن فاکتور</span>
+
+          <!-- دکمه خرید -->
+          <button onclick="goTo('purchase')" data-roles="admin,partner" 
+                  class="btn-outline flex flex-col items-center justify-center gap-3 py-8 px-4 rounded-2xl text-base h-full min-h-[180px]">
+            <span class="text-3xl">🛒</span>
+            <span class="font-semibold text-lg">خرید</span>
+            <span class="text-xs text-veyma-muted/80">ثبت خرید جدید</span>
           </button>
         </div>
       </section>
 
-      <!-- فروش -->
+      <!-- کارت موجودی رو به اتمام -->
       <section>
-        <div class="flex items-center gap-2.5 mb-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          <h3 class="text-sm font-medium text-veyma-muted tracking-wide">فروش</h3>
-        </div>
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-
-          <!-- فروش امروز -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">فروش امروز</p>
-            <p class="stat-value text-2xl font-bold text-veyma-gold leading-none" id="stat-today-sales">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
+        <div class="stat-card rounded-2xl p-5 max-w-xs cursor-pointer" onclick="goTo('inventory')">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[13px] text-veyma-muted mb-1.5">موجودی رو به اتمام</p>
+              <p class="stat-value text-2xl font-bold text-amber-400 leading-none" id="stat-low-stock">۰</p>
+              <p class="text-[11px] text-veyma-muted/80 mt-1.5">قلم</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-amber-400/10 flex items-center justify-center">
+              <span class="text-amber-400 text-lg">⚠</span>
+            </div>
           </div>
-
-          <!-- فروش این ماه -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">فروش این ماه</p>
-            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-month-sales">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
-          </div>
-
-          <!-- فاکتورهای امروز -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">فاکتورهای امروز</p>
-            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-today-invoices">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">عدد</p>
-          </div>
-
-          <!-- سود امروز -->
-          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
-            <p class="text-[13px] text-veyma-muted mb-2.5">سود امروز</p>
-            <p class="stat-value text-2xl font-bold text-emerald-400 leading-none" id="stat-today-profit">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
-          </div>
-
-          <!-- سود ماه -->
-          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
-            <p class="text-[13px] text-veyma-muted mb-2.5">سود این ماه</p>
-            <p class="stat-value text-2xl font-bold text-emerald-400 leading-none" id="stat-month-profit">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- مشتری و انبار -->
-      <section>
-        <div class="flex items-center gap-2.5 mb-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-veyma-gold"></span>
-          <h3 class="text-sm font-medium text-veyma-muted tracking-wide">مشتری و انبار</h3>
-        </div>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-
-          <!-- تعداد مشتریان -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">تعداد مشتریان</p>
-            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-customers">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">نفر</p>
-          </div>
-
-          <!-- طلب از مشتریان -->
-          <div class="stat-card rounded-2xl p-5" data-roles="admin,partner">
-            <p class="text-[13px] text-veyma-muted mb-2.5">طلب از مشتریان</p>
-            <p class="stat-value text-2xl font-bold text-amber-400 leading-none" id="stat-receivable">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">تومان</p>
-          </div>
-
-          <!-- تعداد کالاها -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">تعداد کالاها</p>
-            <p class="stat-value text-2xl font-bold text-veyma-cream leading-none" id="stat-products">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">قلم</p>
-          </div>
-
-          <!-- کم‌موجودی -->
-          <div class="stat-card rounded-2xl p-5">
-            <p class="text-[13px] text-veyma-muted mb-2.5">کم‌موجودی</p>
-            <p class="stat-value text-2xl font-bold text-amber-400 leading-none" id="stat-low-stock">۰</p>
-            <p class="text-[11px] text-veyma-muted/80 mt-2">قلم</p>
-          </div>
-
         </div>
       </section>
 
@@ -533,21 +490,14 @@
 
     async function loadDashboard() {
       try {
-        const customersSnap = await db.collection('customers').where('status', '!=', 'deleted').get();
-        document.getElementById('stat-customers').textContent = customersSnap.size.toLocaleString('fa-IR');
-
-        const productsSnap = await db.collection('products').where('status', '!=', 'deleted').get();
-        document.getElementById('stat-products').textContent = productsSnap.size.toLocaleString('fa-IR');
-
         const zeroIds = [
           'stat-today-sales', 'stat-month-sales', 'stat-today-invoices',
-          'stat-today-profit', 'stat-month-profit', 'stat-receivable', 'stat-low-stock'
+          'stat-today-profit', 'stat-month-profit', 'stat-low-stock'
         ];
         zeroIds.forEach(id => {
           const el = document.getElementById(id);
           if (el) el.textContent = '۰';
         });
-
       } catch (err) {
         console.error('خطا در بارگذاری داشبورد:', err);
       }
@@ -568,24 +518,26 @@
     function goTo(page) {
       closeSidebar();
 
+      // به‌روزرسانی کلاس active منو
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        item.classList.add('text-veyma-muted');
+      });
+      const activeLink = document.querySelector(`.nav-item[onclick*="'${page}'"]`);
+      if (activeLink) {
+        activeLink.classList.add('active');
+        activeLink.classList.remove('text-veyma-muted');
+      }
+
       const titles = {
         dashboard: 'داشبورد',
-        sale: 'فروش جدید',
-        'stock-in': 'ورود کالا',
-        'customer-new': 'مشتری جدید',
-        'supplier-new': 'تأمین‌کننده جدید',
-        scan: 'اسکن فاکتور',
-        customers: 'مشتریان',
-        inventory: 'انبار',
-        suppliers: 'تأمین‌کنندگان',
-        checks: 'چک‌ها',
-        accounts: 'حساب‌ها',
-        reports: 'گزارش‌ها',
-        ai: 'دستیار هوشمند',
-        activities: 'فعالیت‌ها',
-        deleted: 'حذف‌شده‌ها',
+        sale: 'فروش',
+        purchase: 'خرید',
+        accounts: 'حساب',
+        activities: 'فعالیت',
         users: 'مدیریت کاربران',
-        settings: 'تنظیمات'
+        settings: 'تنظیمات',
+        inventory: 'انبار'
       };
 
       document.getElementById('page-title').textContent = titles[page] || page;
