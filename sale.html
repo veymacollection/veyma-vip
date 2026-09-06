@@ -30,6 +30,9 @@
     }
   </script>
 
+  <!-- کتابخانه ساخت PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -87,6 +90,18 @@
 
     .profit { color: #22c55e; }
     .hidden-role { display: none !important; }
+
+    /* مودال تأیید ارسال */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 60;
+      display: flex;
+      items-center;
+      justify-content: center;
+      padding: 16px;
+    }
   </style>
 </head>
 <body class="min-h-screen font-vazir antialiased flex flex-col">
@@ -171,7 +186,7 @@
           <button onclick="submitSale(false)" class="btn-primary py-3.5 rounded-xl text-white font-bold text-base">
             ثبت فروش
           </button>
-          <button onclick="submitSale(true)" class="btn-send py-3.5 rounded-xl text-white font-bold text-base">
+          <button onclick="prepareSend()" class="btn-send py-3.5 rounded-xl text-white font-bold text-base">
             ثبت و ارسال
           </button>
         </div>
@@ -191,7 +206,7 @@
 
   </main>
 
-  <!-- فوتر اطلاعات پرداخت (برای مشتری) -->
+  <!-- فوتر اطلاعات پرداخت -->
   <footer class="mt-auto border-t border-veyma-gold/20 px-4 py-6">
     <div class="max-w-2xl mx-auto">
       <div class="card rounded-2xl p-5 border border-veyma-gold/30">
@@ -201,15 +216,17 @@
           <p class="text-xs text-veyma-muted mt-1">اطلاعات تماس و پرداخت</p>
         </div>
 
-        <!-- تماس -->
+        <!-- تماس (آیکون سمت چپ شماره) -->
         <div class="bg-white/5 rounded-xl p-4 mb-3">
           <p class="text-xs text-veyma-muted mb-2.5 text-center">شماره تماس</p>
           <div class="flex flex-col gap-2">
-            <a href="tel:09128606076" class="flex items-center justify-center gap-2 text-base font-bold text-veyma-cream">
-              📞 ۰۹۱۲۸۶۰۶۰۷۶
+            <a href="tel:09128606076" class="flex items-center justify-center gap-2 text-base font-bold text-veyma-cream" style="direction: ltr;">
+              <span>📞</span>
+              <span>۰۹۱۲۸۶۰۶۰۷۶</span>
             </a>
-            <a href="tel:09125490503" class="flex items-center justify-center gap-2 text-base font-bold text-veyma-cream">
-              📞 ۰۹۱۲۵۴۹۰۵۰۳
+            <a href="tel:09125490503" class="flex items-center justify-center gap-2 text-base font-bold text-veyma-cream" style="direction: ltr;">
+              <span>📞</span>
+              <span>۰۹۱۲۵۴۹۰۵۰۳</span>
             </a>
           </div>
         </div>
@@ -230,7 +247,6 @@
           </p>
         </div>
 
-        <!-- نام -->
         <div class="text-center pt-1">
           <p class="text-veyma-gold font-semibold">به نام: وحید عباسی</p>
         </div>
@@ -238,6 +254,51 @@
       </div>
     </div>
   </footer>
+
+  <!-- مودال تأیید ارسال -->
+  <div id="send-modal" class="modal-overlay hidden">
+    <div class="card rounded-2xl p-6 w-full max-w-sm border border-veyma-gold/30">
+      <h3 class="text-lg font-bold text-veyma-gold text-center mb-2">آماده ارسال</h3>
+      <p class="text-sm text-veyma-muted text-center mb-5">فاکتور به صورت PDF ساخته شد. چه کاری انجام شود؟</p>
+      
+      <div class="space-y-3">
+        <button onclick="viewPdfThenSend()" class="w-full py-3 rounded-xl bg-white/10 border border-veyma-gold/40 text-veyma-cream font-bold">
+          مشاهده PDF و بعد ارسال
+        </button>
+        <button onclick="confirmSend()" class="w-full py-3 rounded-xl btn-send text-white font-bold">
+          ارسال مستقیم
+        </button>
+        <button onclick="closeSendModal()" class="w-full py-2.5 rounded-xl text-veyma-muted text-sm">
+          انصراف
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- قالب مخفی فاکتور برای PDF -->
+  <div id="invoice-template" class="hidden" style="background:#fff; color:#111; padding:24px; font-family:Tahoma,sans-serif; direction:rtl;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="logo.webp" style="width:70px; height:70px; border-radius:12px; margin:0 auto 8px;" onerror="this.style.display='none'" />
+      <h2 style="margin:0; color:#d4af37;">ممنون از خرید شما</h2>
+      <p style="margin:4px 0 0; font-size:12px; color:#666;" id="pdf-date"></p>
+    </div>
+
+    <div style="border:1px solid #eee; border-radius:12px; padding:16px; margin-bottom:16px;">
+      <p><strong>مشتری:</strong> <span id="pdf-customer"></span></p>
+      <p><strong>تلفن:</strong> <span id="pdf-phone"></span></p>
+      <p><strong>کالا:</strong> <span id="pdf-product"></span></p>
+      <p><strong>تعداد:</strong> <span id="pdf-qty"></span></p>
+      <p><strong>مبلغ کل:</strong> <span id="pdf-total"></span> تومان</p>
+    </div>
+
+    <div style="border:1px solid #eee; border-radius:12px; padding:16px; text-align:center;">
+      <p style="font-weight:bold; color:#d4af37; margin-bottom:8px;">Veyma Collection</p>
+      <p style="margin:4px 0;">📞 ۰۹۱۲۸۶۰۶۰۷۶ &nbsp;|&nbsp; ۰۹۱۲۵۴۹۰۵۰۳</p>
+      <p style="margin:4px 0;">کارت: ۵۰۲۲-۲۹۱۵-۸۸۵۶-۲۱۹۷</p>
+      <p style="margin:4px 0;">شبا: IR۵۷۰۵۷۰۰۷۷۷۰۰۰۱۰۵۳۵۴۹۰۰۰۱</p>
+      <p style="margin:8px 0 0; color:#d4af37;">به نام: وحید عباسی</p>
+    </div>
+  </div>
 
   <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-veyma-navy border border-veyma-gold/40 text-veyma-cream px-6 py-3 rounded-2xl shadow-lg z-50 text-sm font-medium hidden"></div>
 
@@ -258,6 +319,7 @@
     let products = [];
     let selectedProduct = null;
     let currentRole = null;
+    let pendingSaleData = null; // داده‌های فروش در انتظار ارسال
 
     document.getElementById('current-date').textContent =
       new Date().toLocaleDateString('fa-IR', { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' }) +
@@ -358,6 +420,75 @@
       document.getElementById('profit-value').textContent = profit.toLocaleString('fa-IR') + ' تومان';
     }
 
+    // آماده‌سازی ارسال (ساخت PDF + نمایش مودال)
+    function prepareSend() {
+      const name = document.getElementById('customer-name').value.trim();
+      const phone = document.getElementById('customer-phone').value.trim();
+      const productId = document.getElementById('product-select').value;
+      const qtyNumber = parseFloat(document.getElementById('qty-number').value) || 0;
+      const qtyJean = parseFloat(document.getElementById('qty-jean').value) || 0;
+      const totalQty = qtyNumber + (qtyJean * 12);
+
+      if (!name) return showToast('نام مشتری را وارد کنید');
+      if (!productId) return showToast('کالا را انتخاب کنید');
+      if (totalQty <= 0) return showToast('تعداد را مشخص کنید');
+
+      const product = products.find(p => p.id === productId);
+      if (!product) return showToast('کالا یافت نشد');
+      if ((product.stock || 0) < totalQty) return showToast('موجودی کافی نیست!');
+
+      const salePrice = product.salePrice || 0;
+      const totalAmount = salePrice * totalQty;
+
+      // پر کردن قالب PDF
+      document.getElementById('pdf-date').textContent = new Date().toLocaleString('fa-IR');
+      document.getElementById('pdf-customer').textContent = name;
+      document.getElementById('pdf-phone').textContent = phone || '—';
+      document.getElementById('pdf-product').textContent = product.name;
+      document.getElementById('pdf-qty').textContent = totalQty + (qtyJean > 0 ? ` (${qtyJean} جین)` : '');
+      document.getElementById('pdf-total').textContent = totalAmount.toLocaleString('fa-IR');
+
+      pendingSaleData = {
+        name, phone, productId, product, qtyNumber, qtyJean, totalQty, totalAmount
+      };
+
+      // نمایش مودال
+      document.getElementById('send-modal').classList.remove('hidden');
+    }
+
+    function closeSendModal() {
+      document.getElementById('send-modal').classList.add('hidden');
+      pendingSaleData = null;
+    }
+
+    // مشاهده PDF و بعد ارسال
+    function viewPdfThenSend() {
+      const element = document.getElementById('invoice-template');
+      element.classList.remove('hidden');
+
+      const opt = {
+        margin: 10,
+        filename: 'فاکتور-ویما.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        element.classList.add('hidden');
+        // بعد از دانلود، فروش را ثبت و ارسال می‌کنیم
+        confirmSend();
+      });
+    }
+
+    // ارسال مستقیم
+    async function confirmSend() {
+      if (!pendingSaleData) return;
+      closeSendModal();
+      await doSubmitSale(true, pendingSaleData);
+    }
+
+    // ثبت عادی
     async function submitSale(isSend = false) {
       const name = document.getElementById('customer-name').value.trim();
       const phone = document.getElementById('customer-phone').value.trim();
@@ -372,25 +503,26 @@
 
       const product = products.find(p => p.id === productId);
       if (!product) return showToast('کالا یافت نشد');
+      if ((product.stock || 0) < totalQty) return showToast('موجودی کافی نیست!');
 
-      if ((product.stock || 0) < totalQty) {
-        return showToast('موجودی کافی نیست!');
-      }
+      await doSubmitSale(isSend, { name, phone, productId, product, qtyNumber, qtyJean, totalQty });
+    }
 
+    async function doSubmitSale(isSend, data) {
       try {
-        const cost = product.costPrice || 0;
-        const salePrice = product.salePrice || 0;
-        const profit = (salePrice - cost) * totalQty;
-        const totalAmount = salePrice * totalQty;
+        const cost = data.product.costPrice || 0;
+        const salePrice = data.product.salePrice || 0;
+        const profit = (salePrice - cost) * data.totalQty;
+        const totalAmount = salePrice * data.totalQty;
 
         await db.collection('sales').add({
-          customerName: name,
-          customerPhone: phone,
-          productId: productId,
-          productName: product.name,
-          qtyNumber,
-          qtyJean,
-          totalQty,
+          customerName: data.name,
+          customerPhone: data.phone,
+          productId: data.productId,
+          productName: data.product.name,
+          qtyNumber: data.qtyNumber,
+          qtyJean: data.qtyJean,
+          totalQty: data.totalQty,
           costPrice: cost,
           salePrice,
           totalAmount,
@@ -400,14 +532,15 @@
           createdBy: auth.currentUser.uid
         });
 
-        await db.collection('products').doc(productId).update({
-          stock: firebase.firestore.FieldValue.increment(-totalQty)
+        await db.collection('products').doc(data.productId).update({
+          stock: firebase.firestore.FieldValue.increment(-data.totalQty)
         });
 
-        await upsertCustomer(name, phone, totalAmount, product.name);
+        await upsertCustomer(data.name, data.phone, totalAmount, data.product.name);
 
         showToast(isSend ? 'فروش ثبت و ارسال شد' : 'فروش با موفقیت ثبت شد');
         
+        // پاک کردن فرم
         document.getElementById('customer-name').value = '';
         document.getElementById('customer-phone').value = '';
         document.getElementById('product-select').value = '';
