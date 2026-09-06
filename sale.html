@@ -104,7 +104,6 @@
       </h2>
 
       <div class="space-y-4">
-        <!-- مشتری -->
         <div>
           <label class="text-sm text-veyma-muted mb-1.5 block">نام مشتری</label>
           <input id="customer-name" type="text" placeholder="نام مشتری را وارد کنید"
@@ -118,7 +117,6 @@
                  class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream" />
         </div>
 
-        <!-- کالا -->
         <div>
           <label class="text-sm text-veyma-muted mb-1.5 block">انتخاب کالا از انبار</label>
           <select id="product-select" class="input-field w-full rounded-xl px-4 py-3 text-veyma-cream">
@@ -126,7 +124,6 @@
           </select>
         </div>
 
-        <!-- تعداد -->
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-sm text-veyma-muted mb-1.5 block">تعداد (عدد)</label>
@@ -140,8 +137,8 @@
           </div>
         </div>
 
-        <!-- اطلاعات قیمت و سود -->
-        <div id="price-info" class="hidden bg-white/5 rounded-xl p-4 space-y-2">
+        <!-- بخش سود (همیشه نمایش داده می‌شود) -->
+        <div id="price-info" class="bg-white/5 rounded-xl p-4 space-y-2">
           <div class="flex justify-between text-sm">
             <span class="text-veyma-muted">قیمت خرید واحد:</span>
             <span id="cost-price" class="text-veyma-cream">۰ تومان</span>
@@ -176,7 +173,6 @@
 
   </main>
 
-  <!-- Toast -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-veyma-navy border border-veyma-gold/40 text-veyma-cream px-6 py-3 rounded-2xl shadow-lg z-50 text-sm font-medium hidden"></div>
 
   <script>
@@ -216,6 +212,14 @@
         const select = document.getElementById('product-select');
         select.innerHTML = '<option value="">— انتخاب کالا —</option>';
 
+        if (snap.empty) {
+          const opt = document.createElement('option');
+          opt.disabled = true;
+          opt.textContent = 'هنوز کالایی در انبار ثبت نشده';
+          select.appendChild(opt);
+          return;
+        }
+
         snap.forEach(doc => {
           const p = { id: doc.id, ...doc.data() };
           products.push(p);
@@ -235,12 +239,13 @@
       selectedProduct = products.find(p => p.id === id) || null;
 
       if (selectedProduct) {
-        document.getElementById('price-info').classList.remove('hidden');
         document.getElementById('cost-price').textContent = (selectedProduct.costPrice || 0).toLocaleString('fa-IR') + ' تومان';
         document.getElementById('sale-price').textContent = (selectedProduct.salePrice || 0).toLocaleString('fa-IR') + ' تومان';
         calculateProfit();
       } else {
-        document.getElementById('price-info').classList.add('hidden');
+        document.getElementById('cost-price').textContent = '۰ تومان';
+        document.getElementById('sale-price').textContent = '۰ تومان';
+        document.getElementById('profit-value').textContent = '۰ تومان';
       }
     });
 
@@ -248,7 +253,10 @@
     document.getElementById('qty-jean').addEventListener('input', calculateProfit);
 
     function calculateProfit() {
-      if (!selectedProduct) return;
+      if (!selectedProduct) {
+        document.getElementById('profit-value').textContent = '۰ تومان';
+        return;
+      }
 
       const qtyNumber = parseFloat(document.getElementById('qty-number').value) || 0;
       const qtyJean = parseFloat(document.getElementById('qty-jean').value) || 0;
@@ -314,7 +322,9 @@
         document.getElementById('product-select').value = '';
         document.getElementById('qty-number').value = '';
         document.getElementById('qty-jean').value = '';
-        document.getElementById('price-info').classList.add('hidden');
+        document.getElementById('cost-price').textContent = '۰ تومان';
+        document.getElementById('sale-price').textContent = '۰ تومان';
+        document.getElementById('profit-value').textContent = '۰ تومان';
         selectedProduct = null;
 
         loadProducts();
@@ -327,57 +337,80 @@
     }
 
     async function upsertCustomer(name, phone, amount, productName) {
-      const snap = await db.collection('customers')
-        .where('phone', '==', phone)
-        .limit(1)
-        .get();
+      try {
+        let snap;
+        if (phone) {
+          snap = await db.collection('customers').where('phone', '==', phone).limit(1).get();
+        } else {
+          snap = await db.collection('customers').where('name', '==', name).limit(1).get();
+        }
 
-      if (snap.empty) {
-        await db.collection('customers').add({
-          name,
-          phone,
-          totalSpent: amount,
-          purchaseCount: 1,
-          lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
-          mostBought: { [productName]: 1 },
-          status: 'active'
-        });
-      } else {
-        const doc = snap.docs[0];
-        const data = doc.data();
-        const mostBought = data.mostBought || {};
-        mostBought[productName] = (mostBought[productName] || 0) + 1;
+        if (snap.empty) {
+          await db.collection('customers').add({
+            name,
+            phone: phone || '',
+            totalSpent: amount,
+            purchaseCount: 1,
+            lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
+            mostBought: { [productName]: 1 },
+            status: 'active'
+          });
+        } else {
+          const doc = snap.docs[0];
+          const data = doc.data();
+          const mostBought = data.mostBought || {};
+          mostBought[productName] = (mostBought[productName] || 0) + 1;
 
-        await doc.ref.update({
-          name,
-          totalSpent: (data.totalSpent || 0) + amount,
-          purchaseCount: (data.purchaseCount || 0) + 1,
-          lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
-          mostBought
-        });
+          await doc.ref.update({
+            name,
+            totalSpent: (data.totalSpent || 0) + amount,
+            purchaseCount: (data.purchaseCount || 0) + 1,
+            lastPurchase: firebase.firestore.FieldValue.serverTimestamp(),
+            mostBought
+          });
+        }
+      } catch (e) {
+        console.error('خطا در به‌روزرسانی مشتری:', e);
       }
     }
 
     async function loadCustomers() {
-      try {
-        const snap = await db.collection('customers')
-          .where('status', '==', 'active')
-          .orderBy('totalSpent', 'desc')
-          .limit(50)
-          .get();
+      const container = document.getElementById('customers-container');
+      const datalist = document.getElementById('customers-list');
+      datalist.innerHTML = '';
 
-        const container = document.getElementById('customers-container');
-        const datalist = document.getElementById('customers-list');
-        datalist.innerHTML = '';
+      try {
+        let snap;
+        try {
+          snap = await db.collection('customers')
+            .where('status', '==', 'active')
+            .orderBy('totalSpent', 'desc')
+            .limit(50)
+            .get();
+        } catch (e) {
+          // اگر ایندکس نبود، بدون مرتب‌سازی
+          snap = await db.collection('customers')
+            .where('status', '==', 'active')
+            .limit(50)
+            .get();
+        }
 
         if (snap.empty) {
-          container.innerHTML = '<p class="text-center text-veyma-muted text-sm py-8">هنوز مشتری ثبت نشده</p>';
+          container.innerHTML = `
+            <div class="text-center py-10">
+              <p class="text-veyma-muted text-sm">هنوز مشتری ثبت نشده</p>
+              <p class="text-veyma-muted/60 text-xs mt-1">اولین فروش را ثبت کنید تا مشتری اینجا ظاهر شود</p>
+            </div>
+          `;
           return;
         }
 
         let html = '';
-        snap.forEach(doc => {
-          const c = doc.data();
+        const list = [];
+        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+        list.sort((a, b) => (b.totalSpent || 0) - (a.totalSpent || 0));
+
+        list.forEach(c => {
           const medal = getMedal(c.totalSpent || 0, c.purchaseCount || 0);
           const lastDate = c.lastPurchase ? c.lastPurchase.toDate().toLocaleString('fa-IR') : '—';
           const most = getMostBought(c.mostBought);
@@ -393,7 +426,7 @@
                   <div class="flex items-center gap-2 mb-1">
                     <span class="text-xl">${medal.icon}</span>
                     <h3 class="font-bold text-veyma-cream">${c.name}</h3>
-                    <span class="text-xs ${medal.color}">${medal.label}</span>
+                    <span class="text-xs \( {medal.color}"> \){medal.label}</span>
                   </div>
                   <p class="text-sm text-veyma-muted">${c.phone || '—'}</p>
                   <p class="text-xs text-veyma-muted mt-1">آخرین خرید: ${lastDate}</p>
@@ -411,8 +444,12 @@
         container.innerHTML = html;
       } catch (e) {
         console.error(e);
-        document.getElementById('customers-container').innerHTML =
-          '<p class="text-center text-red-400 text-sm py-6">خطا در بارگذاری مشتریان</p>';
+        container.innerHTML = `
+          <div class="text-center py-10">
+            <p class="text-veyma-muted text-sm">هنوز مشتری ثبت نشده</p>
+            <p class="text-veyma-muted/60 text-xs mt-1">اولین فروش را ثبت کنید تا مشتری اینجا ظاهر شود</p>
+          </div>
+        `;
       }
     }
 
